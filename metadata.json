@@ -1,0 +1,6 @@
+{
+  "name": "KŌSEN — PC壁紙スタジオ",
+  "description": "React Bits の Beams WebGL2 シェーダーを用いたインタラクティブPC壁紙スタジオ。光の帯をリアルタイムにカスタマイズし、フルスクリーンライブ壁紙や最大5K解像度のPNG書き出しに対応します。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
