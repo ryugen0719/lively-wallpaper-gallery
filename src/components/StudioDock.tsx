@@ -175,8 +175,8 @@ export function StudioDock({
     <section
       aria-label="壁紙コントロールパネル"
       aria-hidden={uiHidden}
-      className={`fixed bottom-4 sm:bottom-5 left-1/2 z-20 w-[min(940px,94vw)] -translate-x-1/2 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        uiHidden ? 'translate-y-[145%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+      className={`fixed bottom-16 sm:bottom-20 left-1/2 z-20 w-[min(940px,94vw)] -translate-x-1/2 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        uiHidden ? 'translate-y-[170%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
       }`}
     >
       {/* Top dock handle bar */}
@@ -302,7 +302,9 @@ export function StudioDock({
 
       {/* Main collapsible dock panel */}
       {dockOpen && (
-        <div className={`rounded-xl border transition-colors duration-200 ${panelSurface}`}>
+        <div
+          className={`max-h-[calc(100dvh-12rem)] overflow-y-auto rounded-xl border transition-colors duration-200 ${panelSurface}`}
+        >
           {/* Mobile-only clean 4-tab selector (desktop uses TopBar nav) */}
           <div
             role="tablist"

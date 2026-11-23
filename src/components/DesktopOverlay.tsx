@@ -32,15 +32,15 @@ export function DesktopOverlay({ clock, lightMode, zenMode, dockOpen }: DesktopO
   const positionClass =
     clock.position === 'center'
       ? `inset-0 flex flex-col items-center justify-center text-center px-6 ${
-          !zenMode && dockOpen ? 'pb-72 sm:pb-60' : 'pb-0'
+          !zenMode && dockOpen ? 'pb-80 sm:pb-76' : 'pb-10'
         }`
       : clock.position === 'top-left'
         ? `${zenMode ? 'top-10' : 'top-20 sm:top-24'} left-6 sm:left-14 flex flex-col items-start text-left`
         : clock.position === 'top-right'
           ? `${zenMode ? 'top-10' : 'top-20 sm:top-24'} right-6 sm:right-14 flex flex-col items-end text-right`
           : clock.position === 'bottom-right'
-            ? `${zenMode ? 'bottom-12' : dockOpen ? 'bottom-84 sm:bottom-76' : 'bottom-20'} right-6 sm:right-14 flex flex-col items-end text-right`
-            : `${zenMode ? 'bottom-12' : dockOpen ? 'bottom-84 sm:bottom-76' : 'bottom-20'} left-6 sm:left-14 flex flex-col items-start text-left`;
+            ? `${zenMode ? 'bottom-20 sm:bottom-24' : dockOpen ? 'bottom-[26rem] sm:bottom-[23rem]' : 'bottom-32 sm:bottom-36'} right-6 sm:right-14 flex flex-col items-end text-right`
+            : `${zenMode ? 'bottom-20 sm:bottom-24' : dockOpen ? 'bottom-[26rem] sm:bottom-[23rem]' : 'bottom-32 sm:bottom-36'} left-6 sm:left-14 flex flex-col items-start text-left`;
 
   const clockFontSize =
     clock.position === 'center'

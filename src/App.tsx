@@ -910,7 +910,7 @@ export default function App() {
         <div
           role="status"
           aria-live="polite"
-          className={`pointer-events-none fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-lg border px-4 py-2 text-xs font-medium whitespace-nowrap ${hintSurface}`}
+          className={`pointer-events-none fixed bottom-20 sm:bottom-24 left-1/2 z-30 -translate-x-1/2 rounded-lg border px-4 py-2 text-xs font-medium whitespace-nowrap ${hintSurface}`}
         >
           完全非表示にしました — {unlockMeta.hintText} でUIを再表示
         </div>
