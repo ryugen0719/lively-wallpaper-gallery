@@ -20,12 +20,20 @@ export interface BeamsConfig {
   paused: boolean;
 }
 
-export type ClockPosition = 'off' | 'center' | 'top-left' | 'bottom-left';
+export type ClockPosition =
+  | 'off'
+  | 'center'
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right';
+export type ClockSize = 'sm' | 'md' | 'lg';
 export type OsPreviewFrame = 'none' | 'windows' | 'macos';
 export type ExportFormat = 'png' | 'jpeg';
 
 export interface ClockConfig {
   position: ClockPosition;
+  size: ClockSize;
   use24Hour: boolean;
   showSeconds: boolean;
   showDate: boolean;
@@ -73,7 +81,8 @@ export const DEFAULT_BEAMS_CONFIG: BeamsConfig = {
 };
 
 export const DEFAULT_CLOCK_CONFIG: ClockConfig = {
-  position: 'off',
+  position: 'center',
+  size: 'md',
   use24Hour: true,
   showSeconds: false,
   showDate: true,
@@ -337,8 +346,9 @@ export function serializeConfigToQuery(
   params.set('mi', config.mouseInteraction ? '1' : '0');
   params.set('ms', String(config.mouseStrength));
   params.set('lm', config.lightMode ? '1' : '0');
+  params.set('clk', clock.position);
   if (clock.position !== 'off') {
-    params.set('clk', clock.position);
+    params.set('csz', clock.size);
     params.set('h24', clock.use24Hour ? '1' : '0');
     params.set('sec', clock.showSeconds ? '1' : '0');
     params.set('dt', clock.showDate ? '1' : '0');
@@ -396,13 +406,27 @@ export function parseConfigFromQuery(search: string): ParsedQueryState {
   });
 
   const clkParam = params.get('clk');
-  const validPositions: ClockPosition[] = ['off', 'center', 'top-left', 'bottom-left'];
+  const validPositions: ClockPosition[] = [
+    'off',
+    'center',
+    'top-left',
+    'top-right',
+    'bottom-left',
+    'bottom-right',
+  ];
   const position: ClockPosition = validPositions.includes(clkParam as ClockPosition)
     ? (clkParam as ClockPosition)
-    : 'off';
+    : DEFAULT_CLOCK_CONFIG.position;
+
+  const sizeParam = params.get('csz');
+  const validSizes: ClockSize[] = ['sm', 'md', 'lg'];
+  const size: ClockSize = validSizes.includes(sizeParam as ClockSize)
+    ? (sizeParam as ClockSize)
+    : DEFAULT_CLOCK_CONFIG.size;
 
   const clock: ClockConfig = {
     position,
+    size,
     use24Hour: params.has('h24') ? params.get('h24') !== '0' : DEFAULT_CLOCK_CONFIG.use24Hour,
     showSeconds: params.has('sec') ? params.get('sec') === '1' : DEFAULT_CLOCK_CONFIG.showSeconds,
     showDate: params.has('dt') ? params.get('dt') !== '0' : DEFAULT_CLOCK_CONFIG.showDate,

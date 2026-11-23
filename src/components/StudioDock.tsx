@@ -4,9 +4,12 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Clock,
   Copy,
   Download,
   EyeOff,
+  Lock,
+  LockOpen,
   Maximize2,
   Minimize2,
   Pause,
@@ -18,6 +21,7 @@ import {
 import {
   type ClockConfig,
   type ClockPosition,
+  type ClockSize,
   type ExportFormat,
   type OsPreviewFrame,
   RESOLUTION_OPTIONS,
@@ -27,7 +31,10 @@ import {
   type AllDesignConfigs,
   DESIGN_LIST,
   type DesignPresetItem,
+  UI_UNLOCK_MODES,
+  type UiUnlockMode,
   type WallpaperDesignId,
+  getUiUnlockModeMeta,
   isLightModeForDesign,
   isPausedForDesign,
 } from '../utils/wallpaperDesigns';
@@ -49,6 +56,9 @@ interface StudioDockProps {
   onChangeClock: (patch: Partial<ClockConfig>) => void;
   autoHideSeconds: number;
   onChangeAutoHideSeconds: (sec: number) => void;
+  uiUnlockMode: UiUnlockMode;
+  onChangeUiUnlockMode: (mode: UiUnlockMode) => void;
+  onToggleQuickLock: () => void;
   presets: DesignPresetItem[];
   activePresetId: string;
   onSelectPreset: (preset: DesignPresetItem) => void;
@@ -88,6 +98,9 @@ export function StudioDock({
   onChangeClock,
   autoHideSeconds,
   onChangeAutoHideSeconds,
+  uiUnlockMode,
+  onChangeUiUnlockMode,
+  onToggleQuickLock,
   presets,
   activePresetId,
   onSelectPreset,
@@ -121,6 +134,8 @@ export function StudioDock({
   const paused = isPausedForDesign(designId, configs);
   const activeDesignMeta = DESIGN_LIST.find((d) => d.id === designId) ?? DESIGN_LIST[0];
   const activePreset = presets.find((p) => p.id === activePresetId);
+  const activeUnlockMeta = getUiUnlockModeMeta(uiUnlockMode);
+  const isUiLocked = uiUnlockMode === 'locked';
 
   const panelSurface = lightMode
     ? 'bg-[#F6F5F1]/92 border-black/12 text-neutral-900 shadow-lg shadow-black/5'
@@ -215,6 +230,21 @@ export function StudioDock({
           <button
             type="button"
             tabIndex={uiHidden ? -1 : 0}
+            onClick={() =>
+              onChangeClock({ position: clock.position === 'off' ? 'center' : 'off' })
+            }
+            aria-pressed={clock.position !== 'off'}
+            aria-label={clock.position === 'off' ? '時計を表示' : '時計を非表示'}
+            title={clock.position === 'off' ? '時計を表示' : '時計を非表示'}
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${
+              clock.position !== 'off' ? segmentActive : iconBtnClass
+            }`}
+          >
+            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            tabIndex={uiHidden ? -1 : 0}
             onClick={onRandomize}
             aria-label="壁紙デザインをランダム生成"
             title="ランダム生成 (R)"
@@ -234,6 +264,27 @@ export function StudioDock({
               <Minimize2 className="h-3.5 w-3.5" aria-hidden="true" />
             ) : (
               <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+          </button>
+          <button
+            type="button"
+            tabIndex={uiHidden ? -1 : 0}
+            onClick={onToggleQuickLock}
+            aria-pressed={isUiLocked}
+            aria-label={isUiLocked ? 'UI完全ロックを解除' : '誤操作防止のためUIを完全ロック'}
+            title={
+              isUiLocked
+                ? '完全ロック中（Ctrl+Shift+Uのみで開く）'
+                : `誤操作防止ロック切替（現在: ${activeUnlockMeta.shortLabel}）`
+            }
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${
+              isUiLocked ? segmentActive : iconBtnClass
+            }`}
+          >
+            {isUiLocked ? (
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <LockOpen className="h-3.5 w-3.5" aria-hidden="true" />
             )}
           </button>
           <button
@@ -286,11 +337,11 @@ export function StudioDock({
           <div className="p-3.5 sm:p-5">
             {activeTab === 'presets' && (
               <div className="space-y-3.5">
-                {/* 7 React Bits Design Engine Selector */}
+                {/* 13 React Bits Design Engine Selector */}
                 <div
                   role="tablist"
                   aria-label="壁紙デザイン切替"
-                  className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 md:grid-cols-7"
+                  className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7"
                 >
                   {DESIGN_LIST.map((design) => {
                     const selected = design.id === designId;
@@ -444,7 +495,7 @@ export function StudioDock({
                   )}
 
                   <span className={`text-[11px] ${mutedText}`}>
-                    H 完全非表示 · ダブルクリック切替 · Space 一時停止
+                    再表示: {activeUnlockMeta.hintText} · H 非表示 · Space 一時停止
                   </span>
                 </div>
               </div>
@@ -464,14 +515,39 @@ export function StudioDock({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-3">
-                    <div className="text-xs font-semibold">デスクトップ時計オーバーレイ</div>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-xs font-semibold">デスクトップ時計オーバーレイ</div>
+                      <div className={`inline-flex gap-1 rounded-lg p-0.5 ${segmentTrack}`}>
+                        {(
+                          [
+                            { id: 'sm', label: '小' },
+                            { id: 'md', label: '中' },
+                            { id: 'lg', label: '大' },
+                          ] as Array<{ id: ClockSize; label: string }>
+                        ).map((sz) => (
+                          <button
+                            key={sz.id}
+                            type="button"
+                            aria-pressed={clock.size === sz.id}
+                            onClick={() => onChangeClock({ size: sz.id })}
+                            className={`rounded-md px-2.5 py-0.5 text-[11px] font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                              clock.size === sz.id ? segmentActive : segmentIdle
+                            }`}
+                          >
+                            {sz.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <div className={`inline-flex flex-wrap gap-1 rounded-lg p-1 ${segmentTrack}`}>
                       {(
                         [
                           { id: 'off', label: '非表示' },
                           { id: 'center', label: '中央' },
                           { id: 'top-left', label: '左上' },
+                          { id: 'top-right', label: '右上' },
                           { id: 'bottom-left', label: '左下' },
+                          { id: 'bottom-right', label: '右下' },
                         ] as Array<{ id: ClockPosition; label: string }>
                       ).map((pos) => (
                         <button
@@ -479,7 +555,7 @@ export function StudioDock({
                           type="button"
                           aria-pressed={clock.position === pos.id}
                           onClick={() => onChangeClock({ position: pos.id })}
-                          className={`rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                          className={`rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                             clock.position === pos.id ? segmentActive : segmentIdle
                           }`}
                         >
@@ -544,9 +620,39 @@ export function StudioDock({
                     </div>
                   </div>
 
-                  {/* Lively Wallpaper Complete-Hide Panel */}
+                  {/* Lively Wallpaper Complete-Hide & Anti-Accidental-Open Guard Panel */}
                   <div className="space-y-3">
-                    <div className="text-xs font-semibold">Lively Wallpaper 完全非表示設定</div>
+                    <div className="text-xs font-semibold">
+                      Lively Wallpaper 完全非表示・誤操作防止
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-xs ${mutedText}`}>UIを開く操作</span>
+                        <span className={`font-mono text-[10px] ${mutedText}`}>
+                          非常時: Ctrl+Shift+U
+                        </span>
+                      </div>
+                      <div className={`inline-flex flex-wrap gap-1 rounded-lg p-1 ${segmentTrack}`}>
+                        {UI_UNLOCK_MODES.map((mode) => (
+                          <button
+                            key={mode.id}
+                            type="button"
+                            aria-pressed={uiUnlockMode === mode.id}
+                            onClick={() => onChangeUiUnlockMode(mode.id)}
+                            className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                              uiUnlockMode === mode.id ? segmentActive : segmentIdle
+                            }`}
+                          >
+                            {mode.shortLabel}
+                          </button>
+                        ))}
+                      </div>
+                      <p className={`text-[11px] leading-relaxed ${mutedText}`}>
+                        {activeUnlockMeta.description}
+                      </p>
+                    </div>
+
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className={`text-xs ${mutedText}`}>無操作で自動非表示</span>
                       <div className={`inline-flex gap-1 rounded-lg p-1 ${segmentTrack}`}>
@@ -565,9 +671,7 @@ export function StudioDock({
                         ))}
                       </div>
                     </div>
-                    <p className={`text-[11px] leading-relaxed ${mutedText}`}>
-                      完全非表示にすると画面上のボタン類がすべて消えます。再表示は画面ダブルクリック、H キー、または右下隅へのカーソル移動で行えます。
-                    </p>
+
                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
                       <button
                         type="button"

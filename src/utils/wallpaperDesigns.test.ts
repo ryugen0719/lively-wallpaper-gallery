@@ -11,8 +11,8 @@ import {
 } from './wallpaperDesigns';
 import { DEFAULT_CLOCK_CONFIG } from './wallpaperConfig';
 
-test('all 7 React Bits designs exist and have curated presets including light mode', () => {
-  assert.equal(DESIGN_LIST.length, 7);
+test('all 13 React Bits designs exist and have curated presets including light mode', () => {
+  assert.equal(DESIGN_LIST.length, 13);
   for (const design of DESIGN_LIST) {
     const presets = DESIGN_PRESETS[design.id];
     assert.ok(presets.length >= 4, `${design.id} should have at least 4 presets`);
@@ -23,36 +23,47 @@ test('all 7 React Bits designs exist and have curated presets including light mo
   }
 });
 
-test('Lively Wallpaper URL serialization round-trips non-Beams design, clock, and lively=1 hide flag', () => {
-  const auroraPreset = DESIGN_PRESETS.aurora[1];
+test('Lively Wallpaper URL serialization round-trips design, clock size/position, unlock guard, and hide flag', () => {
+  const scannerPreset = DESIGN_PRESETS.scanner[1];
   const query = serializeStudioUrlQuery({
-    designId: 'aurora',
-    presetId: auroraPreset.id,
-    config: auroraPreset.config,
-    clock: { ...DEFAULT_CLOCK_CONFIG, position: 'center', showSeconds: true },
+    designId: 'scanner',
+    presetId: scannerPreset.id,
+    config: scannerPreset.config,
+    clock: { ...DEFAULT_CLOCK_CONFIG, position: 'bottom-right', size: 'lg', showSeconds: true },
     lively: true,
     autoHideSeconds: 5,
+    uiUnlockMode: 'locked',
   });
 
   assert.ok(query.includes('lively=1'));
-  assert.ok(query.includes('design=aurora'));
+  assert.ok(query.includes('design=scanner'));
+  assert.ok(query.includes('unlock=locked'));
 
   const parsed = parseStudioUrlQuery(query);
   assert.equal(parsed.hasParams, true);
-  assert.equal(parsed.designId, 'aurora');
-  assert.equal(parsed.presetId, auroraPreset.id);
+  assert.equal(parsed.designId, 'scanner');
+  assert.equal(parsed.presetId, scannerPreset.id);
   assert.equal(parsed.uiHidden, true);
   assert.equal(parsed.autoHideSeconds, 5);
-  assert.equal(parsed.clock.position, 'center');
+  assert.equal(parsed.uiUnlockMode, 'locked');
+  assert.equal(parsed.clock.position, 'bottom-right');
+  assert.equal(parsed.clock.size, 'lg');
   assert.equal(parsed.clock.showSeconds, true);
-  assert.deepEqual(parsed.configs.aurora.colorStops, ['#5227ff', '#c084fc', '#38bdf8']);
 });
 
-test('parseStudioUrlQuery supports ?zen=1 and ?clean=1 aliases for complete UI hide', () => {
+test('parseStudioUrlQuery hides UI by default and parses unlock guard modes safely', () => {
+  assert.equal(parseStudioUrlQuery('').uiHidden, true);
+  assert.equal(parseStudioUrlQuery('').uiUnlockMode, 'triple-tap');
+  assert.equal(parseStudioUrlQuery('?unlock=hold').uiUnlockMode, 'long-press');
+  assert.equal(parseStudioUrlQuery('?unlock=corner').uiUnlockMode, 'corner-double');
+  assert.equal(parseStudioUrlQuery('?unlock=locked').uiUnlockMode, 'locked');
+  assert.equal(parseStudioUrlQuery('?unlock=invalid').uiUnlockMode, 'triple-tap');
   assert.equal(parseStudioUrlQuery('?zen=1').uiHidden, true);
   assert.equal(parseStudioUrlQuery('?clean=1').uiHidden, true);
   assert.equal(parseStudioUrlQuery('?lively=1').uiHidden, true);
-  assert.equal(parseStudioUrlQuery('').uiHidden, false);
+  assert.equal(parseStudioUrlQuery('?ui=1').uiHidden, false);
+  assert.equal(parseStudioUrlQuery('?edit=1').uiHidden, false);
+  assert.equal(parseStudioUrlQuery('?lively=0').uiHidden, false);
 });
 
 test('createRandomDesignConfig returns valid configuration for every design', () => {

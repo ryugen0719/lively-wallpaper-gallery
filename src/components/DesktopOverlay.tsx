@@ -32,27 +32,50 @@ export function DesktopOverlay({ clock, lightMode, zenMode, dockOpen }: DesktopO
   const positionClass =
     clock.position === 'center'
       ? `inset-0 flex flex-col items-center justify-center text-center px-6 ${
-          !zenMode && dockOpen ? 'pb-72 sm:pb-52' : 'pb-0'
+          !zenMode && dockOpen ? 'pb-72 sm:pb-60' : 'pb-0'
         }`
       : clock.position === 'top-left'
         ? `${zenMode ? 'top-10' : 'top-20 sm:top-24'} left-6 sm:left-14 flex flex-col items-start text-left`
-        : `${zenMode ? 'bottom-12' : dockOpen ? 'bottom-80 sm:bottom-72' : 'bottom-20'} left-6 sm:left-14 flex flex-col items-start text-left`;
+        : clock.position === 'top-right'
+          ? `${zenMode ? 'top-10' : 'top-20 sm:top-24'} right-6 sm:right-14 flex flex-col items-end text-right`
+          : clock.position === 'bottom-right'
+            ? `${zenMode ? 'bottom-12' : dockOpen ? 'bottom-84 sm:bottom-76' : 'bottom-20'} right-6 sm:right-14 flex flex-col items-end text-right`
+            : `${zenMode ? 'bottom-12' : dockOpen ? 'bottom-84 sm:bottom-76' : 'bottom-20'} left-6 sm:left-14 flex flex-col items-start text-left`;
+
+  const clockFontSize =
+    clock.position === 'center'
+      ? clock.size === 'sm'
+        ? 'clamp(3rem, 7.5vw, 5.75rem)'
+        : clock.size === 'lg'
+          ? 'clamp(4.75rem, 13.5vw, 10.5rem)'
+          : 'clamp(4rem, 10.5vw, 8.25rem)'
+      : clock.size === 'sm'
+        ? 'clamp(2.25rem, 4.5vw, 3.6rem)'
+        : clock.size === 'lg'
+          ? 'clamp(3.6rem, 8vw, 6.5rem)'
+          : 'clamp(2.85rem, 6vw, 4.85rem)';
+
+  const dateSizeClass =
+    clock.size === 'sm'
+      ? 'text-xs sm:text-sm'
+      : clock.size === 'lg'
+        ? 'text-base sm:text-lg'
+        : 'text-sm sm:text-base';
 
   return (
     <>
       {clock.position !== 'off' && (
         <div
           data-testid="desktop-clock"
+          data-clock-position={clock.position}
+          data-clock-size={clock.size}
           aria-live="off"
           className={`pointer-events-none fixed z-10 select-none transition-all duration-300 ${positionClass}`}
         >
           <div
             className={`font-display font-light tracking-[-0.03em] tabular-nums leading-none ${primaryTextColor}`}
             style={{
-              fontSize:
-                clock.position === 'center'
-                  ? 'clamp(4rem, 11vw, 8.5rem)'
-                  : 'clamp(3rem, 6.5vw, 5.25rem)',
+              fontSize: clockFontSize,
               textShadow: lightMode
                 ? '0 2px 24px rgba(255,255,255,0.45)'
                 : '0 4px 32px rgba(0,0,0,0.45)',
@@ -67,7 +90,7 @@ export function DesktopOverlay({ clock, lightMode, zenMode, dockOpen }: DesktopO
           </div>
           {clock.showDate && (
             <p
-              className={`mt-3 text-sm sm:text-base font-medium tracking-[0.06em] ${secondaryTextColor}`}
+              className={`mt-3 font-medium tracking-[0.06em] ${dateSizeClass} ${secondaryTextColor}`}
               style={{
                 textShadow: lightMode
                   ? '0 1px 12px rgba(255,255,255,0.45)'

@@ -1,11 +1,17 @@
 import type { MutableRefObject } from 'react';
 import Beams from './Beams';
 import Aurora from './backgrounds/Aurora.jsx';
+import CrystalizedBall from './backgrounds/CrystalizedBall.jsx';
+import CursorGrid from './backgrounds/CursorGrid.jsx';
 import GradientASCII from './backgrounds/GradientASCII.jsx';
 import Grainient from './backgrounds/Grainient.jsx';
 import HoloMosaic from './backgrounds/HoloMosaic.jsx';
 import LetterGlitch from './backgrounds/LetterGlitch.jsx';
 import PixelSnow from './backgrounds/PixelSnow.jsx';
+import Scanner from './backgrounds/Scanner.jsx';
+import SideRays from './backgrounds/SideRays.jsx';
+import SoftAurora from './backgrounds/SoftAurora.jsx';
+import Topography from './backgrounds/Topography.jsx';
 import type { AllDesignConfigs, WallpaperDesignId } from '../utils/wallpaperDesigns';
 
 interface WallpaperCanvasProps {
@@ -208,6 +214,160 @@ export function WallpaperCanvas({ designId, configs, beamsClockRef }: WallpaperC
           dpr={undefined}
           style={undefined}
           className="h-full w-full"
+        />
+      );
+    }
+    case 'crystalized-ball': {
+      const c = configs['crystalized-ball'];
+      return (
+        <CrystalizedBall
+          preset={c.preset}
+          color={c.color}
+          theme={c.lightMode ? 'light' : 'dark'}
+          size={c.size}
+          strands={undefined}
+          crackle={c.crackle}
+          flares={c.flares}
+          glow={c.glow}
+          sparks={undefined}
+          particleCount={undefined}
+          fill={undefined}
+          motion={undefined}
+          particleShape={undefined}
+          depth={undefined}
+          sway={undefined}
+          twinkle={undefined}
+          haze={undefined}
+          speed={c.speed}
+          dustSpeed={undefined}
+          interactive={c.interactive}
+          paused={c.paused}
+          intro={false}
+          className="h-full w-full"
+          style={{ backgroundColor: c.backgroundColor }}
+        />
+      );
+    }
+    case 'scanner': {
+      const c = configs.scanner;
+      return (
+        <Scanner
+          color1={c.color1}
+          color2={c.color2}
+          color3={c.color3}
+          speed={c.speed}
+          sweepSpeed={c.sweepSpeed}
+          sweepWidth={c.sweepWidth}
+          trail={c.trail}
+          scale={c.scale}
+          bandDensity={c.bandDensity}
+          glow={c.glow}
+          scanDirection={c.scanDirection}
+          brightness={c.brightness}
+          scanline={c.scanline}
+          mouseInteraction={c.mouseInteraction}
+          lightMode={c.lightMode}
+          intro={false}
+          dpr={undefined}
+          className="h-full w-full"
+          style={{ backgroundColor: c.backgroundColor }}
+        />
+      );
+    }
+    case 'topography': {
+      const c = configs.topography;
+      return (
+        <Topography
+          color={c.color}
+          lineCount={c.lineCount}
+          lineWidth={c.lineWidth}
+          elevation={c.elevation}
+          scale={c.scale}
+          tilt={c.tilt}
+          speed={c.speed}
+          direction={c.direction}
+          morph={c.morph}
+          glow={c.glow}
+          fog={c.fog}
+          hoverEffect={c.hoverEffect}
+          markers={c.markers}
+          mouseInteraction={c.mouseInteraction}
+          lightMode={c.lightMode}
+          intro={false}
+          dpr={undefined}
+          className="h-full w-full"
+          style={{ backgroundColor: c.backgroundColor }}
+        />
+      );
+    }
+    case 'cursor-grid': {
+      const c = configs['cursor-grid'];
+      return (
+        <CursorGrid
+          cellSize={c.cellSize}
+          color={c.color}
+          gridColor={c.gridColor}
+          radius={c.radius}
+          highlight={c.highlight}
+          gridStyle={c.gridStyle}
+          ambient={c.ambient}
+          spotlight={c.spotlight}
+          gridOpacity={c.gridOpacity}
+          fillOpacity={c.fillOpacity}
+          clickPulse={c.clickPulse}
+          lightMode={c.lightMode}
+          intro={false}
+          dpr={undefined}
+          children={undefined}
+          className="h-full w-full"
+          style={{ backgroundColor: c.backgroundColor }}
+        />
+      );
+    }
+    case 'side-rays': {
+      const c = configs['side-rays'];
+      return (
+        <SideRays
+          rayColor1={c.rayColor1}
+          rayColor2={c.rayColor2}
+          blend={c.blend}
+          origin={c.origin}
+          speed={c.speed}
+          intensity={c.intensity}
+          spread={c.spread}
+          density={c.density}
+          sharpness={c.sharpness}
+          glow={c.glow}
+          dust={c.dust}
+          followMouse={c.followMouse}
+          lightMode={c.lightMode}
+          intro={false}
+          className="h-full w-full"
+          style={{ backgroundColor: c.backgroundColor }}
+        />
+      );
+    }
+    case 'soft-aurora': {
+      const c = configs['soft-aurora'];
+      return (
+        <SoftAurora
+          color1={c.color1}
+          color2={c.color2}
+          speed={c.speed}
+          scale={c.scale}
+          brightness={c.brightness}
+          noiseFrequency={c.noiseFrequency}
+          noiseAmplitude={c.noiseAmplitude}
+          bandHeight={c.bandHeight}
+          bandSpread={c.bandSpread}
+          spectrum={c.spectrum}
+          tilt={c.tilt}
+          enableMouseInteraction={c.enableMouseInteraction}
+          clickPulse={c.clickPulse}
+          lightMode={c.lightMode}
+          intro={false}
+          className="h-full w-full"
+          style={{ backgroundColor: c.backgroundColor }}
         />
       );
     }

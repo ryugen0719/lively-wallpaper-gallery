@@ -41,7 +41,8 @@ test('sanitizeBeamsConfig clamps out-of-range numbers and validates hex colors',
 test('URL query serialization and parsing round-trips BeamsConfig, ClockConfig, and zen mode', () => {
   const samplePreset = WALLPAPER_PRESETS.find((p) => p.id === 'washi-ink')!;
   const clock = {
-    position: 'center' as const,
+    position: 'top-right' as const,
+    size: 'lg' as const,
     use24Hour: false,
     showSeconds: true,
     showDate: true,
@@ -58,7 +59,8 @@ test('URL query serialization and parsing round-trips BeamsConfig, ClockConfig, 
   assert.equal(parsed.config.lightMode, true);
   assert.equal(parsed.config.beamWidth, samplePreset.config.beamWidth);
   assert.equal(parsed.config.rotation, samplePreset.config.rotation);
-  assert.equal(parsed.clock.position, 'center');
+  assert.equal(parsed.clock.position, 'top-right');
+  assert.equal(parsed.clock.size, 'lg');
   assert.equal(parsed.clock.use24Hour, false);
   assert.equal(parsed.clock.showSeconds, true);
 });

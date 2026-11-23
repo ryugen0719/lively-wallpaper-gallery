@@ -54,8 +54,9 @@ function drawClockOntoCanvas(
   ctx.shadowColor = lightMode ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.35)';
   ctx.shadowBlur = 24 * scale;
 
-  const timeFontSize = Math.round(132 * scale);
-  const dateFontSize = Math.round(24 * scale);
+  const sizeMult = clock.size === 'sm' ? 0.72 : clock.size === 'lg' ? 1.28 : 1;
+  const timeFontSize = Math.round(132 * scale * sizeMult);
+  const dateFontSize = Math.round(24 * scale * (clock.size === 'sm' ? 0.85 : clock.size === 'lg' ? 1.15 : 1));
   const marginX = Math.round(96 * scale);
   const marginY = Math.round(96 * scale);
 
@@ -67,10 +68,18 @@ function drawClockOntoCanvas(
     x = marginX;
     y = marginY + timeFontSize * 0.85;
     align = 'left';
+  } else if (clock.position === 'top-right') {
+    x = canvas.width - marginX;
+    y = marginY + timeFontSize * 0.85;
+    align = 'right';
   } else if (clock.position === 'bottom-left') {
     x = marginX;
     y = canvas.height - marginY - (clock.showDate ? dateFontSize * 2.2 : 0);
     align = 'left';
+  } else if (clock.position === 'bottom-right') {
+    x = canvas.width - marginX;
+    y = canvas.height - marginY - (clock.showDate ? dateFontSize * 2.2 : 0);
+    align = 'right';
   }
 
   ctx.textAlign = align;

@@ -971,6 +971,630 @@ export function DesignCustomizePanel({
     );
   }
 
+  if (designId === 'crystalized-ball') {
+    const c = configs['crystalized-ball'];
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className={`inline-flex flex-wrap items-center gap-1 rounded-lg p-1 ${segmentTrack}`}>
+            {(
+              [
+                { id: 'plasma', label: 'プラズマ' },
+                { id: 'aurora', label: 'オーロラ' },
+                { id: 'nebula', label: '星雲' },
+                { id: 'solar', label: '太陽' },
+                { id: 'frost', label: '氷晶' },
+                { id: 'eclipse', label: '日蝕' },
+              ] as const
+            ).map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-pressed={c.preset === p.id}
+                onClick={() => onPatchDesignConfig('crystalized-ball', { preset: p.id })}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                  c.preset === p.id ? segmentActive : segmentIdle
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={onReset}
+            className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${mutedText} hover:underline`}
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>初期化</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3.5">
+          <ColorSwatchInput
+            id="ball-color"
+            label="オーブカラー"
+            value={c.color}
+            onChange={(color) => onPatchDesignConfig('crystalized-ball', { color })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="ball-bg"
+            label="背景カラー"
+            value={c.backgroundColor}
+            onChange={(backgroundColor) =>
+              onPatchDesignConfig('crystalized-ball', { backgroundColor })
+            }
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="ball-size"
+            label="球体サイズ"
+            value={c.size}
+            min={0.35}
+            max={0.95}
+            step={0.02}
+            displayValue={c.size.toFixed(2)}
+            onChange={(size) => onPatchDesignConfig('crystalized-ball', { size })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="ball-crackle"
+            label="放電強度"
+            value={c.crackle}
+            min={0}
+            max={1.5}
+            step={0.05}
+            displayValue={c.crackle.toFixed(2)}
+            onChange={(crackle) => onPatchDesignConfig('crystalized-ball', { crackle })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="ball-glow"
+            label="グロー"
+            value={c.glow}
+            min={0.1}
+            max={1.5}
+            step={0.05}
+            displayValue={c.glow.toFixed(2)}
+            onChange={(glow) => onPatchDesignConfig('crystalized-ball', { glow })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="ball-speed"
+            label="速度"
+            value={c.speed}
+            min={0}
+            max={2.5}
+            step={0.05}
+            displayValue={`${c.speed.toFixed(2)}x`}
+            onChange={(speed) => onPatchDesignConfig('crystalized-ball', { speed })}
+            lightMode={lightMode}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (designId === 'scanner') {
+    const c = configs.scanner;
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className={`inline-flex items-center gap-1 rounded-lg p-1 ${segmentTrack}`}>
+            {(
+              [
+                { id: 'vertical', label: '垂直スキャン' },
+                { id: 'horizontal', label: '水平スキャン' },
+                { id: 'diagonal', label: '斜めスキャン' },
+              ] as const
+            ).map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                aria-pressed={c.scanDirection === d.id}
+                onClick={() => onPatchDesignConfig('scanner', { scanDirection: d.id })}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                  c.scanDirection === d.id ? segmentActive : segmentIdle
+                }`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={c.scanline}
+                onChange={(e) => onPatchDesignConfig('scanner', { scanline: e.target.checked })}
+                className="h-3.5 w-3.5 accent-current cursor-pointer"
+              />
+              <span>走査線</span>
+            </label>
+            <button
+              type="button"
+              onClick={onReset}
+              className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${mutedText} hover:underline`}
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>初期化</span>
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3.5">
+          <ColorSwatchInput
+            id="scanner-c1"
+            label="ベース光色"
+            value={c.color1}
+            onChange={(color1) => onPatchDesignConfig('scanner', { color1 })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="scanner-c2"
+            label="サブ光色"
+            value={c.color2}
+            onChange={(color2) => onPatchDesignConfig('scanner', { color2 })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="scanner-bg"
+            label="背景カラー"
+            value={c.backgroundColor}
+            onChange={(backgroundColor) => onPatchDesignConfig('scanner', { backgroundColor })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="scanner-density"
+            label="バンド密度"
+            value={c.bandDensity}
+            min={4}
+            max={24}
+            step={1}
+            displayValue={String(c.bandDensity)}
+            onChange={(bandDensity) => onPatchDesignConfig('scanner', { bandDensity })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="scanner-glow"
+            label="グロー強度"
+            value={c.glow}
+            min={0}
+            max={1.5}
+            step={0.05}
+            displayValue={c.glow.toFixed(2)}
+            onChange={(glow) => onPatchDesignConfig('scanner', { glow })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="scanner-speed"
+            label="速度"
+            value={c.speed}
+            min={0}
+            max={2}
+            step={0.05}
+            displayValue={`${c.speed.toFixed(2)}x`}
+            onChange={(speed) => onPatchDesignConfig('scanner', { speed })}
+            lightMode={lightMode}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (designId === 'topography') {
+    const c = configs.topography;
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className={`inline-flex items-center gap-1 rounded-lg p-1 ${segmentTrack}`}>
+              {(
+                [
+                  { id: 'forward', label: '前進' },
+                  { id: 'backward', label: '後退' },
+                  { id: 'left', label: '左流' },
+                  { id: 'right', label: '右流' },
+                ] as const
+              ).map((dir) => (
+                <button
+                  key={dir.id}
+                  type="button"
+                  aria-pressed={c.direction === dir.id}
+                  onClick={() => onPatchDesignConfig('topography', { direction: dir.id })}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                    c.direction === dir.id ? segmentActive : segmentIdle
+                  }`}
+                >
+                  {dir.label}
+                </button>
+              ))}
+            </div>
+            <div className={`inline-flex items-center gap-1 rounded-lg p-1 ${segmentTrack}`}>
+              {(
+                [
+                  { id: 'none', label: 'マーカーなし' },
+                  { id: 'plus', label: '十字' },
+                  { id: 'dots', label: 'ドット' },
+                ] as const
+              ).map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  aria-pressed={c.markers === m.id}
+                  onClick={() => onPatchDesignConfig('topography', { markers: m.id })}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                    c.markers === m.id ? segmentActive : segmentIdle
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onReset}
+            className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${mutedText} hover:underline`}
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>初期化</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3.5">
+          <ColorSwatchInput
+            id="topo-color"
+            label="等高線カラー"
+            value={c.color}
+            onChange={(color) => onPatchDesignConfig('topography', { color })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="topo-bg"
+            label="背景カラー"
+            value={c.backgroundColor}
+            onChange={(backgroundColor) => onPatchDesignConfig('topography', { backgroundColor })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="topo-lines"
+            label="等高線数"
+            value={c.lineCount}
+            min={8}
+            max={40}
+            step={1}
+            displayValue={`${c.lineCount}本`}
+            onChange={(lineCount) => onPatchDesignConfig('topography', { lineCount })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="topo-elevation"
+            label="高低差"
+            value={c.elevation}
+            min={0.3}
+            max={2.2}
+            step={0.05}
+            displayValue={c.elevation.toFixed(2)}
+            onChange={(elevation) => onPatchDesignConfig('topography', { elevation })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="topo-tilt"
+            label="俯瞰角"
+            value={c.tilt}
+            min={10}
+            max={55}
+            step={1}
+            displayValue={`${c.tilt}°`}
+            onChange={(tilt) => onPatchDesignConfig('topography', { tilt })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="topo-speed"
+            label="速度"
+            value={c.speed}
+            min={0}
+            max={1.5}
+            step={0.05}
+            displayValue={`${c.speed.toFixed(2)}x`}
+            onChange={(speed) => onPatchDesignConfig('topography', { speed })}
+            lightMode={lightMode}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (designId === 'cursor-grid') {
+    const c = configs['cursor-grid'];
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className={`inline-flex items-center gap-1 rounded-lg p-1 ${segmentTrack}`}>
+              {(
+                [
+                  { id: 'lines', label: '実線' },
+                  { id: 'dashed', label: '破線' },
+                  { id: 'dots', label: 'ドット' },
+                  { id: 'crosses', label: 'クロス' },
+                ] as const
+              ).map((st) => (
+                <button
+                  key={st.id}
+                  type="button"
+                  aria-pressed={c.gridStyle === st.id}
+                  onClick={() => onPatchDesignConfig('cursor-grid', { gridStyle: st.id })}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                    c.gridStyle === st.id ? segmentActive : segmentIdle
+                  }`}
+                >
+                  {st.label}
+                </button>
+              ))}
+            </div>
+            <div className={`inline-flex items-center gap-1 rounded-lg p-1 ${segmentTrack}`}>
+              {(
+                [
+                  { id: 'area', label: '範囲発光' },
+                  { id: 'cell', label: 'セル単位' },
+                ] as const
+              ).map((hl) => (
+                <button
+                  key={hl.id}
+                  type="button"
+                  aria-pressed={c.highlight === hl.id}
+                  onClick={() => onPatchDesignConfig('cursor-grid', { highlight: hl.id })}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                    c.highlight === hl.id ? segmentActive : segmentIdle
+                  }`}
+                >
+                  {hl.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onReset}
+            className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${mutedText} hover:underline`}
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>初期化</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3.5">
+          <ColorSwatchInput
+            id="grid-color"
+            label="発光カラー"
+            value={c.color}
+            onChange={(color) => onPatchDesignConfig('cursor-grid', { color })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="grid-line-color"
+            label="罫線カラー"
+            value={c.gridColor}
+            onChange={(gridColor) => onPatchDesignConfig('cursor-grid', { gridColor })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="grid-bg"
+            label="背景カラー"
+            value={c.backgroundColor}
+            onChange={(backgroundColor) => onPatchDesignConfig('cursor-grid', { backgroundColor })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="grid-cell-size"
+            label="マスサイズ"
+            value={c.cellSize}
+            min={24}
+            max={100}
+            step={2}
+            displayValue={`${c.cellSize}px`}
+            onChange={(cellSize) => onPatchDesignConfig('cursor-grid', { cellSize })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="grid-ambient"
+            label="環境ゆらぎ"
+            value={c.ambient}
+            min={0}
+            max={1}
+            step={0.05}
+            displayValue={c.ambient.toFixed(2)}
+            onChange={(ambient) => onPatchDesignConfig('cursor-grid', { ambient })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="grid-radius"
+            label="反応半径"
+            value={c.radius}
+            min={60}
+            max={320}
+            step={10}
+            displayValue={`${c.radius}px`}
+            onChange={(radius) => onPatchDesignConfig('cursor-grid', { radius })}
+            lightMode={lightMode}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (designId === 'side-rays') {
+    const c = configs['side-rays'];
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className={`inline-flex flex-wrap items-center gap-1 rounded-lg p-1 ${segmentTrack}`}>
+            {(
+              [
+                { id: 'top-right', label: '右上' },
+                { id: 'top-left', label: '左上' },
+                { id: 'right', label: '右辺' },
+                { id: 'left', label: '左辺' },
+                { id: 'bottom-right', label: '右下' },
+                { id: 'bottom-left', label: '左下' },
+              ] as const
+            ).map((orig) => (
+              <button
+                key={orig.id}
+                type="button"
+                aria-pressed={c.origin === orig.id}
+                onClick={() => onPatchDesignConfig('side-rays', { origin: orig.id })}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
+                  c.origin === orig.id ? segmentActive : segmentIdle
+                }`}
+              >
+                {orig.label}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={onReset}
+            className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${mutedText} hover:underline`}
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>初期化</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3.5">
+          <ColorSwatchInput
+            id="rays-c1"
+            label="光線色 1"
+            value={c.rayColor1}
+            onChange={(rayColor1) => onPatchDesignConfig('side-rays', { rayColor1 })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="rays-c2"
+            label="光線色 2"
+            value={c.rayColor2}
+            onChange={(rayColor2) => onPatchDesignConfig('side-rays', { rayColor2 })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="rays-bg"
+            label="背景カラー"
+            value={c.backgroundColor}
+            onChange={(backgroundColor) => onPatchDesignConfig('side-rays', { backgroundColor })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="rays-intensity"
+            label="光量"
+            value={c.intensity}
+            min={0.5}
+            max={3.5}
+            step={0.1}
+            displayValue={c.intensity.toFixed(1)}
+            onChange={(intensity) => onPatchDesignConfig('side-rays', { intensity })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="rays-density"
+            label="光束密度"
+            value={c.density}
+            min={2}
+            max={10}
+            step={0.5}
+            displayValue={c.density.toFixed(1)}
+            onChange={(density) => onPatchDesignConfig('side-rays', { density })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="rays-dust"
+            label="光の塵"
+            value={c.dust}
+            min={0}
+            max={1}
+            step={0.05}
+            displayValue={c.dust.toFixed(2)}
+            onChange={(dust) => onPatchDesignConfig('side-rays', { dust })}
+            lightMode={lightMode}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (designId === 'soft-aurora') {
+    const c = configs['soft-aurora'];
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className={`text-xs ${mutedText}`}>柔らかな極光バンドの色調とゆらぎ</span>
+          <button
+            type="button"
+            onClick={onReset}
+            className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${mutedText} hover:underline`}
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>初期化</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-3.5">
+          <ColorSwatchInput
+            id="soft-aurora-c1"
+            label="ハイライト色"
+            value={c.color1}
+            onChange={(color1) => onPatchDesignConfig('soft-aurora', { color1 })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="soft-aurora-c2"
+            label="オーロラ色"
+            value={c.color2}
+            onChange={(color2) => onPatchDesignConfig('soft-aurora', { color2 })}
+            lightMode={lightMode}
+          />
+          <ColorSwatchInput
+            id="soft-aurora-bg"
+            label="背景カラー"
+            value={c.backgroundColor}
+            onChange={(backgroundColor) => onPatchDesignConfig('soft-aurora', { backgroundColor })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="soft-aurora-height"
+            label="帯の高さ"
+            value={c.bandHeight}
+            min={0.2}
+            max={1.0}
+            step={0.02}
+            displayValue={c.bandHeight.toFixed(2)}
+            onChange={(bandHeight) => onPatchDesignConfig('soft-aurora', { bandHeight })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="soft-aurora-tilt"
+            label="傾き"
+            value={c.tilt}
+            min={-35}
+            max={35}
+            step={1}
+            displayValue={`${c.tilt}°`}
+            onChange={(tilt) => onPatchDesignConfig('soft-aurora', { tilt })}
+            lightMode={lightMode}
+          />
+          <SliderControl
+            id="soft-aurora-speed"
+            label="速度"
+            value={c.speed}
+            min={0}
+            max={2}
+            step={0.05}
+            displayValue={`${c.speed.toFixed(2)}x`}
+            onChange={(speed) => onPatchDesignConfig('soft-aurora', { speed })}
+            lightMode={lightMode}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // grainient
   const c = configs.grainient;
   const setGColor = (index: 0 | 2 | 3, hex: string) => {

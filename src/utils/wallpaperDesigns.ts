@@ -17,7 +17,13 @@ export type WallpaperDesignId =
   | 'aurora'
   | 'gradient-ascii'
   | 'letter-glitch'
-  | 'grainient';
+  | 'grainient'
+  | 'crystalized-ball'
+  | 'scanner'
+  | 'topography'
+  | 'cursor-grid'
+  | 'side-rays'
+  | 'soft-aurora';
 
 export interface PixelSnowConfig {
   color: string;
@@ -141,6 +147,109 @@ export interface GrainientConfig {
   lightMode: boolean;
 }
 
+export interface CrystalizedBallConfig {
+  preset: 'plasma' | 'aurora' | 'nebula' | 'ember' | 'frost' | 'solar' | 'eclipse' | 'abyss';
+  color: string;
+  backgroundColor: string;
+  size: number;
+  speed: number;
+  glow: number;
+  crackle: number;
+  flares: number;
+  interactive: boolean;
+  lightMode: boolean;
+  paused: boolean;
+}
+
+export interface ScannerConfig {
+  color1: string;
+  color2: string;
+  color3: string;
+  backgroundColor: string;
+  scanDirection: 'vertical' | 'horizontal' | 'diagonal';
+  speed: number;
+  sweepSpeed: number;
+  sweepWidth: number;
+  trail: number;
+  scale: number;
+  bandDensity: number;
+  glow: number;
+  brightness: number;
+  scanline: boolean;
+  mouseInteraction: boolean;
+  lightMode: boolean;
+}
+
+export interface TopographyConfig {
+  color: string;
+  backgroundColor: string;
+  lineCount: number;
+  lineWidth: number;
+  elevation: number;
+  scale: number;
+  tilt: number;
+  speed: number;
+  direction: 'forward' | 'backward' | 'left' | 'right';
+  morph: number;
+  glow: number;
+  fog: number;
+  hoverEffect: 'lift' | 'trace' | 'light';
+  markers: 'none' | 'plus' | 'dots';
+  mouseInteraction: boolean;
+  lightMode: boolean;
+}
+
+export interface CursorGridConfig {
+  color: string;
+  gridColor: string;
+  backgroundColor: string;
+  cellSize: number;
+  radius: number;
+  gridStyle: 'lines' | 'dashed' | 'dots' | 'crosses';
+  highlight: 'area' | 'cell';
+  ambient: number;
+  spotlight: number;
+  gridOpacity: number;
+  fillOpacity: number;
+  clickPulse: boolean;
+  lightMode: boolean;
+}
+
+export interface SideRaysConfig {
+  rayColor1: string;
+  rayColor2: string;
+  backgroundColor: string;
+  origin: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'right' | 'left';
+  blend: number;
+  speed: number;
+  intensity: number;
+  spread: number;
+  density: number;
+  sharpness: number;
+  glow: number;
+  dust: number;
+  followMouse: boolean;
+  lightMode: boolean;
+}
+
+export interface SoftAuroraConfig {
+  color1: string;
+  color2: string;
+  backgroundColor: string;
+  speed: number;
+  scale: number;
+  brightness: number;
+  noiseFrequency: number;
+  noiseAmplitude: number;
+  bandHeight: number;
+  bandSpread: number;
+  spectrum: number;
+  tilt: number;
+  enableMouseInteraction: boolean;
+  clickPulse: boolean;
+  lightMode: boolean;
+}
+
 export interface AllDesignConfigs {
   beams: BeamsConfig;
   'pixel-snow': PixelSnowConfig;
@@ -149,6 +258,12 @@ export interface AllDesignConfigs {
   'gradient-ascii': GradientAsciiConfig;
   'letter-glitch': LetterGlitchConfig;
   grainient: GrainientConfig;
+  'crystalized-ball': CrystalizedBallConfig;
+  scanner: ScannerConfig;
+  topography: TopographyConfig;
+  'cursor-grid': CursorGridConfig;
+  'side-rays': SideRaysConfig;
+  'soft-aurora': SoftAuroraConfig;
 }
 
 export interface DesignMeta {
@@ -220,6 +335,48 @@ export const DESIGN_LIST: DesignMeta[] = [
     jaLabel: 'グレイニエント',
     description: '粒子感と絹のようなうねりを持つグラデーション',
     accentSwatch: ['#120F17', '#F97316'],
+  },
+  {
+    id: 'crystalized-ball',
+    label: 'CrystalizedBall',
+    jaLabel: 'クリスタル球',
+    description: 'プラズマと粒子が結晶球の中で煌めく表現',
+    accentSwatch: ['#090612', '#F25BD0'],
+  },
+  {
+    id: 'scanner',
+    label: 'Scanner',
+    jaLabel: 'スキャナー',
+    description: '光の走査線が波形を描きながら横切る背景',
+    accentSwatch: ['#080614', '#A78BFA'],
+  },
+  {
+    id: 'topography',
+    label: 'Topography',
+    jaLabel: '等高線',
+    description: '立体的な等高線地形が滑らかに流れる背景',
+    accentSwatch: ['#050814', '#4F7CFF'],
+  },
+  {
+    id: 'cursor-grid',
+    label: 'CursorGrid',
+    jaLabel: 'グリッド光',
+    description: 'カーソルと環境光に反応する幾何学グリッド',
+    accentSwatch: ['#06080D', '#38BDF8'],
+  },
+  {
+    id: 'side-rays',
+    label: 'SideRays',
+    jaLabel: 'サイド光線',
+    description: '画面端から柔らかな光束が差し込む演出',
+    accentSwatch: ['#090807', '#FFC46B'],
+  },
+  {
+    id: 'soft-aurora',
+    label: 'SoftAurora',
+    jaLabel: 'ソフト極光',
+    description: '淡いオーロラ帯が滑らかに揺らぐ表現',
+    accentSwatch: ['#0A0614', '#E100FF'],
   },
 ];
 
@@ -339,6 +496,103 @@ export const DEFAULT_DESIGN_CONFIGS: AllDesignConfigs = {
     interactive: true,
     stir: 1.0,
     clickSwirl: true,
+    lightMode: false,
+  },
+  'crystalized-ball': {
+    preset: 'plasma',
+    color: '#f25bd0',
+    backgroundColor: '#07050f',
+    size: 0.72,
+    speed: 1.0,
+    glow: 0.9,
+    crackle: 0.85,
+    flares: 0.65,
+    interactive: true,
+    lightMode: false,
+    paused: false,
+  },
+  scanner: {
+    color1: '#5227ff',
+    color2: '#ff9ffc',
+    color3: '#ffffff',
+    backgroundColor: '#060510',
+    scanDirection: 'vertical',
+    speed: 0.55,
+    sweepSpeed: 0.28,
+    sweepWidth: 1.6,
+    trail: 0.52,
+    scale: 1.5,
+    bandDensity: 11,
+    glow: 0.65,
+    brightness: 1.05,
+    scanline: true,
+    mouseInteraction: true,
+    lightMode: false,
+  },
+  topography: {
+    color: '#4f7cff',
+    backgroundColor: '#050814',
+    lineCount: 22,
+    lineWidth: 1.2,
+    elevation: 1.05,
+    scale: 1.0,
+    tilt: 32,
+    speed: 0.25,
+    direction: 'forward',
+    morph: 0.22,
+    glow: 0.6,
+    fog: 0.35,
+    hoverEffect: 'lift',
+    markers: 'none',
+    mouseInteraction: true,
+    lightMode: false,
+  },
+  'cursor-grid': {
+    color: '#38bdf8',
+    gridColor: '#94a3b8',
+    backgroundColor: '#05080f',
+    cellSize: 56,
+    radius: 170,
+    gridStyle: 'lines',
+    highlight: 'area',
+    ambient: 0.55,
+    spotlight: 0.65,
+    gridOpacity: 0.14,
+    fillOpacity: 0.09,
+    clickPulse: true,
+    lightMode: false,
+  },
+  'side-rays': {
+    rayColor1: '#ffc46b',
+    rayColor2: '#96c8ff',
+    backgroundColor: '#08080c',
+    origin: 'top-right',
+    blend: 0.6,
+    speed: 2.2,
+    intensity: 1.9,
+    spread: 2.0,
+    density: 5,
+    sharpness: 0.5,
+    glow: 1.0,
+    dust: 0.45,
+    followMouse: true,
+    lightMode: false,
+  },
+  'soft-aurora': {
+    color1: '#f7f7f7',
+    color2: '#e100ff',
+    backgroundColor: '#080510',
+    speed: 0.6,
+    scale: 1.5,
+    brightness: 1.0,
+    noiseFrequency: 2.5,
+    noiseAmplitude: 1.0,
+    bandHeight: 0.52,
+    bandSpread: 1.0,
+    spectrum: 1.0,
+    tilt: 0,
+    enableMouseInteraction: true,
+    clickPulse: true,
     lightMode: false,
   },
 };
@@ -756,6 +1010,406 @@ export const DESIGN_PRESETS: Record<WallpaperDesignId, DesignPresetItem[]> = {
       },
     },
   ],
+  'crystalized-ball': [
+    {
+      id: 'ball-plasma',
+      designId: 'crystalized-ball',
+      slug: 'ball-plasma',
+      name: 'プラズマ結晶',
+      subtitle: '紫紅 · 発光',
+      swatch: ['#07050F', '#F25BD0'],
+      lightMode: false,
+      config: { ...DEFAULT_DESIGN_CONFIGS['crystalized-ball'] },
+    },
+    {
+      id: 'ball-aurora',
+      designId: 'crystalized-ball',
+      slug: 'ball-aurora',
+      name: '翠玉オーブ',
+      subtitle: '青緑 · 静謐',
+      swatch: ['#040C0B', '#5CFFC8'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['crystalized-ball'],
+        preset: 'aurora',
+        color: '#5cffc8',
+        backgroundColor: '#040c0b',
+        size: 0.74,
+        speed: 0.85,
+      },
+    },
+    {
+      id: 'ball-solar',
+      designId: 'crystalized-ball',
+      slug: 'ball-solar',
+      name: '太陽フレア球',
+      subtitle: '黄金 · 躍動',
+      swatch: ['#0D0704', '#FFB347'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['crystalized-ball'],
+        preset: 'solar',
+        color: '#ffb347',
+        backgroundColor: '#0d0704',
+        size: 0.76,
+        flares: 0.85,
+        speed: 1.15,
+      },
+    },
+    {
+      id: 'ball-frost-light',
+      designId: 'crystalized-ball',
+      slug: 'ball-frost-light',
+      name: '氷晶プリズム',
+      subtitle: 'ライト · 透明感',
+      swatch: ['#F3F5FA', '#3B82F6'],
+      lightMode: true,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['crystalized-ball'],
+        preset: 'frost',
+        color: '#3b82f6',
+        backgroundColor: '#f3f5fa',
+        size: 0.7,
+        glow: 0.7,
+        lightMode: true,
+      },
+    },
+  ],
+  scanner: [
+    {
+      id: 'scanner-violet',
+      designId: 'scanner',
+      slug: 'scanner-violet',
+      name: '紫電スキャン',
+      subtitle: '垂直 · 紫白',
+      swatch: ['#060510', '#A78BFA'],
+      lightMode: false,
+      config: { ...DEFAULT_DESIGN_CONFIGS.scanner },
+    },
+    {
+      id: 'scanner-cyber-cyan',
+      designId: 'scanner',
+      slug: 'scanner-cyber-cyan',
+      name: '蒼穹パルス',
+      subtitle: '水平 · 青緑',
+      swatch: ['#040A12', '#38BDF8'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS.scanner,
+        color1: '#0284c7',
+        color2: '#34d399',
+        color3: '#e0f2fe',
+        backgroundColor: '#040a12',
+        scanDirection: 'horizontal',
+        bandDensity: 14,
+        speed: 0.65,
+      },
+    },
+    {
+      id: 'scanner-crimson-diag',
+      designId: 'scanner',
+      slug: 'scanner-crimson-diag',
+      name: '紅蓮レーザー',
+      subtitle: '斜走 · 深紅',
+      swatch: ['#0D0407', '#FB7185'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS.scanner,
+        color1: '#be123c',
+        color2: '#fb923c',
+        color3: '#fff1f2',
+        backgroundColor: '#0d0407',
+        scanDirection: 'diagonal',
+        sweepWidth: 1.9,
+        glow: 0.78,
+      },
+    },
+    {
+      id: 'scanner-paper-light',
+      designId: 'scanner',
+      slug: 'scanner-paper-light',
+      name: '白紙オシロ',
+      subtitle: 'ライト · 青線',
+      swatch: ['#F4F5F8', '#4F46E5'],
+      lightMode: true,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS.scanner,
+        color1: '#4f46e5',
+        color2: '#0ea5e9',
+        color3: '#1e293b',
+        backgroundColor: '#f4f5f8',
+        scanline: false,
+        brightness: 0.95,
+        lightMode: true,
+      },
+    },
+  ],
+  topography: [
+    {
+      id: 'topo-cobalt',
+      designId: 'topography',
+      slug: 'topo-cobalt',
+      name: '群青の山脈',
+      subtitle: '前進 · 青藍',
+      swatch: ['#050814', '#4F7CFF'],
+      lightMode: false,
+      config: { ...DEFAULT_DESIGN_CONFIGS.topography },
+    },
+    {
+      id: 'topo-emerald-ridge',
+      designId: 'topography',
+      slug: 'topo-emerald-ridge',
+      name: '翠嶺マップ',
+      subtitle: 'マーカー · 翡翠',
+      swatch: ['#040B09', '#34D399'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS.topography,
+        color: '#34d399',
+        backgroundColor: '#040b09',
+        lineCount: 28,
+        elevation: 1.25,
+        markers: 'plus',
+        tilt: 38,
+      },
+    },
+    {
+      id: 'topo-amber-dune',
+      designId: 'topography',
+      slug: 'topo-amber-dune',
+      name: '砂丘の等高線',
+      subtitle: '横流 · 琥珀',
+      swatch: ['#0C0805', '#F59E0B'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS.topography,
+        color: '#f59e0b',
+        backgroundColor: '#0c0805',
+        direction: 'right',
+        lineCount: 20,
+        elevation: 0.95,
+        tilt: 26,
+      },
+    },
+    {
+      id: 'topo-cartography-light',
+      designId: 'topography',
+      slug: 'topo-cartography-light',
+      name: '白地図アート',
+      subtitle: 'ライト · 墨藍',
+      swatch: ['#F4F2EC', '#2563EB'],
+      lightMode: true,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS.topography,
+        color: '#2563eb',
+        backgroundColor: '#f4f2ec',
+        lineCount: 24,
+        glow: 0.35,
+        fog: 0.25,
+        lightMode: true,
+      },
+    },
+  ],
+  'cursor-grid': [
+    {
+      id: 'grid-cyber-blue',
+      designId: 'cursor-grid',
+      slug: 'grid-cyber-blue',
+      name: '蒼光グリッド',
+      subtitle: '実線 · 環境光',
+      swatch: ['#05080F', '#38BDF8'],
+      lightMode: false,
+      config: { ...DEFAULT_DESIGN_CONFIGS['cursor-grid'] },
+    },
+    {
+      id: 'grid-emerald-dots',
+      designId: 'cursor-grid',
+      slug: 'grid-emerald-dots',
+      name: '翡翠ドット網',
+      subtitle: 'ドット · セル強調',
+      swatch: ['#040B08', '#34D399'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['cursor-grid'],
+        color: '#34d399',
+        gridColor: '#6ee7b7',
+        backgroundColor: '#040b08',
+        gridStyle: 'dots',
+        highlight: 'cell',
+        cellSize: 48,
+        ambient: 0.65,
+      },
+    },
+    {
+      id: 'grid-amber-cross',
+      designId: 'cursor-grid',
+      slug: 'grid-amber-cross',
+      name: '琥珀クロス網',
+      subtitle: 'クロス · 暖色',
+      swatch: ['#0B0805', '#F59E0B'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['cursor-grid'],
+        color: '#f59e0b',
+        gridColor: '#d97706',
+        backgroundColor: '#0b0805',
+        gridStyle: 'crosses',
+        cellSize: 64,
+        ambient: 0.55,
+      },
+    },
+    {
+      id: 'grid-drafting-light',
+      designId: 'cursor-grid',
+      slug: 'grid-drafting-light',
+      name: '製図方眼紙',
+      subtitle: 'ライト · 破線',
+      swatch: ['#F5F4F0', '#2563EB'],
+      lightMode: true,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['cursor-grid'],
+        color: '#2563eb',
+        gridColor: '#64748b',
+        backgroundColor: '#f5f4f0',
+        gridStyle: 'dashed',
+        gridOpacity: 0.16,
+        ambient: 0.5,
+        lightMode: true,
+      },
+    },
+  ],
+  'side-rays': [
+    {
+      id: 'rays-amber-sky',
+      designId: 'side-rays',
+      slug: 'rays-amber-sky',
+      name: '黄昏の斜光',
+      subtitle: '右上 · 金蒼',
+      swatch: ['#08080C', '#FFC46B'],
+      lightMode: false,
+      config: { ...DEFAULT_DESIGN_CONFIGS['side-rays'] },
+    },
+    {
+      id: 'rays-arctic-left',
+      designId: 'side-rays',
+      slug: 'rays-arctic-left',
+      name: '極夜の光芒',
+      subtitle: '左上 · 氷青',
+      swatch: ['#040812', '#60A5FA'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['side-rays'],
+        rayColor1: '#38bdf8',
+        rayColor2: '#a78bfa',
+        backgroundColor: '#040812',
+        origin: 'top-left',
+        density: 6,
+        dust: 0.6,
+      },
+    },
+    {
+      id: 'rays-emerald-side',
+      designId: 'side-rays',
+      slug: 'rays-emerald-side',
+      name: '木漏れ日の緑光',
+      subtitle: '右側 · 翠金',
+      swatch: ['#050B09', '#34D399'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['side-rays'],
+        rayColor1: '#34d399',
+        rayColor2: '#fde68a',
+        backgroundColor: '#050b09',
+        origin: 'right',
+        spread: 2.3,
+        dust: 0.7,
+      },
+    },
+    {
+      id: 'rays-morning-light',
+      designId: 'side-rays',
+      slug: 'rays-morning-light',
+      name: '朝窓の陽射し',
+      subtitle: 'ライト · 柔光',
+      swatch: ['#F6F4EE', '#D97706'],
+      lightMode: true,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['side-rays'],
+        rayColor1: '#f59e0b',
+        rayColor2: '#38bdf8',
+        backgroundColor: '#f6f4ee',
+        origin: 'top-right',
+        intensity: 1.5,
+        lightMode: true,
+      },
+    },
+  ],
+  'soft-aurora': [
+    {
+      id: 'soft-aurora-magenta',
+      designId: 'soft-aurora',
+      slug: 'soft-aurora-magenta',
+      name: '紅紫のソフト極光',
+      subtitle: '標準 · 紅紫',
+      swatch: ['#080510', '#E100FF'],
+      lightMode: false,
+      config: { ...DEFAULT_DESIGN_CONFIGS['soft-aurora'] },
+    },
+    {
+      id: 'soft-aurora-lagoon',
+      designId: 'soft-aurora',
+      slug: 'soft-aurora-lagoon',
+      name: '礁湖のゆらぎ',
+      subtitle: '青緑 · 穏やか',
+      swatch: ['#040A10', '#2DD4BF'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['soft-aurora'],
+        color1: '#e0f2fe',
+        color2: '#14b8a6',
+        backgroundColor: '#040a10',
+        speed: 0.45,
+        scale: 1.35,
+        bandHeight: 0.6,
+        tilt: 12,
+      },
+    },
+    {
+      id: 'soft-aurora-amber',
+      designId: 'soft-aurora',
+      slug: 'soft-aurora-amber',
+      name: '茜雲のヴェール',
+      subtitle: '暖色 · 傾斜',
+      swatch: ['#0D0605', '#FB923C'],
+      lightMode: false,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['soft-aurora'],
+        color1: '#fef3c7',
+        color2: '#f97316',
+        backgroundColor: '#0d0605',
+        speed: 0.55,
+        tilt: -14,
+        bandSpread: 1.25,
+      },
+    },
+    {
+      id: 'soft-aurora-pastel-light',
+      designId: 'soft-aurora',
+      slug: 'soft-aurora-pastel-light',
+      name: '薄雲パステル',
+      subtitle: 'ライト · 透明',
+      swatch: ['#F5F4FA', '#8B5CF6'],
+      lightMode: true,
+      config: {
+        ...DEFAULT_DESIGN_CONFIGS['soft-aurora'],
+        color1: '#38bdf8',
+        color2: '#8b5cf6',
+        backgroundColor: '#f5f4fa',
+        brightness: 0.95,
+        lightMode: true,
+      },
+    },
+  ],
 };
 
 export function isValidDesignId(value: unknown): value is WallpaperDesignId {
@@ -781,6 +1435,18 @@ export function getBackgroundColorForDesign(
       return configs['letter-glitch'].backgroundColor;
     case 'grainient':
       return configs.grainient.colors[0];
+    case 'crystalized-ball':
+      return configs['crystalized-ball'].backgroundColor;
+    case 'scanner':
+      return configs.scanner.backgroundColor;
+    case 'topography':
+      return configs.topography.backgroundColor;
+    case 'cursor-grid':
+      return configs['cursor-grid'].backgroundColor;
+    case 'side-rays':
+      return configs['side-rays'].backgroundColor;
+    case 'soft-aurora':
+      return configs['soft-aurora'].backgroundColor;
   }
 }
 
@@ -799,6 +1465,8 @@ export function isPausedForDesign(
   if (designId === 'pixel-snow') return configs['pixel-snow'].paused;
   if (designId === 'holo-mosaic') return configs['holo-mosaic'].paused;
   if (designId === 'aurora') return configs.aurora.paused;
+  if (designId === 'crystalized-ball') return configs['crystalized-ball'].paused;
+  if (designId === 'cursor-grid') return configs['cursor-grid'].ambient === 0;
   return configs[designId].speed === 0;
 }
 
@@ -869,6 +1537,89 @@ export function createRandomDesignConfig<K extends WallpaperDesignId>(
         clickEffect: rng() > 0.5 ? 'tear' : 'burst',
       } as AllDesignConfigs[K];
     }
+    case 'crystalized-ball': {
+      const c = base as CrystalizedBallConfig;
+      const presetList: CrystalizedBallConfig['preset'][] = [
+        'plasma',
+        'aurora',
+        'nebula',
+        'ember',
+        'frost',
+        'solar',
+        'eclipse',
+        'abyss',
+      ];
+      return {
+        ...c,
+        preset: presetList[Math.floor(rng() * presetList.length)],
+        size: Number(clampNumber(0.55 + rng() * 0.3, 0.35, 0.95).toFixed(2)),
+        speed: Number(clampNumber(0.6 + rng() * 0.9, 0.1, 2.5).toFixed(2)),
+        crackle: Number(clampNumber(0.35 + rng() * 0.65, 0, 1.5).toFixed(2)),
+      } as AllDesignConfigs[K];
+    }
+    case 'scanner': {
+      const c = base as ScannerConfig;
+      const dirs: ScannerConfig['scanDirection'][] = ['vertical', 'horizontal', 'diagonal'];
+      return {
+        ...c,
+        scanDirection: dirs[Math.floor(rng() * dirs.length)],
+        bandDensity: Math.round(clampNumber(6 + rng() * 14, 4, 24)),
+        speed: Number(clampNumber(0.3 + rng() * 0.8, 0.1, 2).toFixed(2)),
+        glow: Number(clampNumber(0.35 + rng() * 0.55, 0, 1.5).toFixed(2)),
+      } as AllDesignConfigs[K];
+    }
+    case 'topography': {
+      const c = base as TopographyConfig;
+      const dirs: TopographyConfig['direction'][] = ['forward', 'backward', 'left', 'right'];
+      const markers: TopographyConfig['markers'][] = ['none', 'plus', 'dots'];
+      return {
+        ...c,
+        direction: dirs[Math.floor(rng() * dirs.length)],
+        markers: markers[Math.floor(rng() * markers.length)],
+        lineCount: Math.round(clampNumber(14 + rng() * 20, 8, 40)),
+        elevation: Number(clampNumber(0.65 + rng() * 0.85, 0.3, 2).toFixed(2)),
+        tilt: Math.round(clampNumber(18 + rng() * 28, 10, 55)),
+      } as AllDesignConfigs[K];
+    }
+    case 'cursor-grid': {
+      const c = base as CursorGridConfig;
+      const styles: CursorGridConfig['gridStyle'][] = ['lines', 'dashed', 'dots', 'crosses'];
+      return {
+        ...c,
+        gridStyle: styles[Math.floor(rng() * styles.length)],
+        highlight: rng() > 0.5 ? 'area' : 'cell',
+        cellSize: Math.round(clampNumber(36 + rng() * 44, 24, 96)),
+        ambient: Number(clampNumber(0.35 + rng() * 0.5, 0.1, 1).toFixed(2)),
+      } as AllDesignConfigs[K];
+    }
+    case 'side-rays': {
+      const c = base as SideRaysConfig;
+      const origins: SideRaysConfig['origin'][] = [
+        'top-right',
+        'top-left',
+        'bottom-right',
+        'bottom-left',
+        'right',
+        'left',
+      ];
+      return {
+        ...c,
+        origin: origins[Math.floor(rng() * origins.length)],
+        density: Number(clampNumber(3 + rng() * 5, 2, 10).toFixed(1)),
+        spread: Number(clampNumber(1.4 + rng() * 1.4, 0.8, 3.5).toFixed(2)),
+        dust: Number(clampNumber(0.2 + rng() * 0.65, 0, 1).toFixed(2)),
+      } as AllDesignConfigs[K];
+    }
+    case 'soft-aurora': {
+      const c = base as SoftAuroraConfig;
+      return {
+        ...c,
+        scale: Number(clampNumber(1.0 + rng() * 1.2, 0.6, 3).toFixed(2)),
+        bandHeight: Number(clampNumber(0.35 + rng() * 0.4, 0.2, 1).toFixed(2)),
+        tilt: Math.round((rng() - 0.5) * 36),
+        speed: Number(clampNumber(0.35 + rng() * 0.75, 0.1, 2).toFixed(2)),
+      } as AllDesignConfigs[K];
+    }
     case 'grainient':
     default: {
       const c = base as GrainientConfig;
@@ -884,6 +1635,76 @@ export function createRandomDesignConfig<K extends WallpaperDesignId>(
   }
 }
 
+export type UiUnlockMode = 'triple-tap' | 'long-press' | 'corner-double' | 'locked';
+
+export const DEFAULT_UI_UNLOCK_MODE: UiUnlockMode = 'triple-tap';
+
+export interface UiUnlockModeMeta {
+  id: UiUnlockMode;
+  shortLabel: string;
+  queryValue: string;
+  hintText: string;
+  description: string;
+}
+
+export const UI_UNLOCK_MODES: UiUnlockModeMeta[] = [
+  {
+    id: 'triple-tap',
+    shortLabel: '3回タップ',
+    queryValue: 'triple',
+    hintText: '3回連続タップ または Ctrl+Shift+U',
+    description:
+      '同じ場所を素早く3回タップ/クリックしたときだけUIが開きます。通常のクリックやダブルクリックでは反応しません。',
+  },
+  {
+    id: 'long-press',
+    shortLabel: '長押し 1.2秒',
+    queryValue: 'hold',
+    hintText: '1.2秒長押し または Ctrl+Shift+U',
+    description:
+      'ポインタを動かさずに1.2秒間押し続けたときだけUIが開きます。クリックやドラッグ選択では反応しません。',
+  },
+  {
+    id: 'corner-double',
+    shortLabel: '右上隅2回',
+    queryValue: 'corner',
+    hintText: '右上隅をダブルタップ または Ctrl+Shift+U',
+    description:
+      '画面の右上隅（96px四方）をダブルタップしたときだけUIが開きます。中央やアイコン付近の操作では開きません。',
+  },
+  {
+    id: 'locked',
+    shortLabel: '完全ロック',
+    queryValue: 'locked',
+    hintText: 'Ctrl+Shift+U（または ?ui=1）',
+    description:
+      'クリック・タップ操作では一切UIを開きません。キーボードの Ctrl+Shift+U（Macは Cmd+Shift+U）のみで再表示できます。',
+  },
+];
+
+export function isValidUiUnlockMode(value: unknown): value is UiUnlockMode {
+  return (
+    value === 'triple-tap' ||
+    value === 'long-press' ||
+    value === 'corner-double' ||
+    value === 'locked'
+  );
+}
+
+export function getUiUnlockModeMeta(mode: UiUnlockMode): UiUnlockModeMeta {
+  return UI_UNLOCK_MODES.find((item) => item.id === mode) ?? UI_UNLOCK_MODES[0];
+}
+
+function parseUiUnlockParam(raw: string | null): UiUnlockMode {
+  if (!raw) return DEFAULT_UI_UNLOCK_MODE;
+  const normalized = raw.trim().toLowerCase();
+  if (normalized === 'triple' || normalized === 'triple-tap') return 'triple-tap';
+  if (normalized === 'hold' || normalized === 'long-press') return 'long-press';
+  if (normalized === 'corner' || normalized === 'corner-double') return 'corner-double';
+  if (normalized === 'locked' || normalized === 'lock' || normalized === 'key') return 'locked';
+  return DEFAULT_UI_UNLOCK_MODE;
+}
+
 export interface StudioSharePayload {
   designId: WallpaperDesignId;
   presetId: string;
@@ -891,6 +1712,7 @@ export interface StudioSharePayload {
   clock: ClockConfig;
   lively: boolean;
   autoHideSeconds: number;
+  uiUnlockMode?: UiUnlockMode;
 }
 
 function encodeBase64Url(json: string): string {
@@ -924,8 +1746,9 @@ export function serializeStudioUrlQuery(payload: StudioSharePayload): string {
     params.set('preset', payload.presetId);
   }
   params.set('cfg', encodeBase64Url(JSON.stringify(payload.config)));
+  params.set('clk', payload.clock.position);
   if (payload.clock.position !== 'off') {
-    params.set('clk', payload.clock.position);
+    params.set('csz', payload.clock.size);
     params.set('h24', payload.clock.use24Hour ? '1' : '0');
     params.set('sec', payload.clock.showSeconds ? '1' : '0');
     params.set('dt', payload.clock.showDate ? '1' : '0');
@@ -933,6 +1756,8 @@ export function serializeStudioUrlQuery(payload: StudioSharePayload): string {
   if (payload.autoHideSeconds > 0) {
     params.set('hide', String(payload.autoHideSeconds));
   }
+  const unlockMeta = getUiUnlockModeMeta(payload.uiUnlockMode ?? DEFAULT_UI_UNLOCK_MODE);
+  params.set('unlock', unlockMeta.queryValue);
   if (payload.lively) {
     params.set('lively', '1');
   }
@@ -947,6 +1772,7 @@ export interface ParsedStudioQuery {
   clock: ClockConfig;
   uiHidden: boolean;
   autoHideSeconds: number;
+  uiUnlockMode: UiUnlockMode;
 }
 
 export function parseStudioUrlQuery(search: string): ParsedStudioQuery {
@@ -959,6 +1785,12 @@ export function parseStudioUrlQuery(search: string): ParsedStudioQuery {
     'gradient-ascii': { ...DEFAULT_DESIGN_CONFIGS['gradient-ascii'] },
     'letter-glitch': { ...DEFAULT_DESIGN_CONFIGS['letter-glitch'] },
     grainient: { ...DEFAULT_DESIGN_CONFIGS.grainient },
+    'crystalized-ball': { ...DEFAULT_DESIGN_CONFIGS['crystalized-ball'] },
+    scanner: { ...DEFAULT_DESIGN_CONFIGS.scanner },
+    topography: { ...DEFAULT_DESIGN_CONFIGS.topography },
+    'cursor-grid': { ...DEFAULT_DESIGN_CONFIGS['cursor-grid'] },
+    'side-rays': { ...DEFAULT_DESIGN_CONFIGS['side-rays'] },
+    'soft-aurora': { ...DEFAULT_DESIGN_CONFIGS['soft-aurora'] },
   };
 
   const designParam = params.get('design');
@@ -1020,22 +1852,38 @@ export function parseStudioUrlQuery(search: string): ParsedStudioQuery {
   }
 
   const clkParam = params.get('clk');
-  const validPositions: ClockConfig['position'][] = ['off', 'center', 'top-left', 'bottom-left'];
+  const validPositions: ClockConfig['position'][] = [
+    'off',
+    'center',
+    'top-left',
+    'top-right',
+    'bottom-left',
+    'bottom-right',
+  ];
+  const sizeParam = params.get('csz');
+  const validSizes: ClockConfig['size'][] = ['sm', 'md', 'lg'];
   const clock: ClockConfig = {
     position: validPositions.includes(clkParam as ClockConfig['position'])
       ? (clkParam as ClockConfig['position'])
       : DEFAULT_CLOCK_CONFIG.position,
+    size: validSizes.includes(sizeParam as ClockConfig['size'])
+      ? (sizeParam as ClockConfig['size'])
+      : DEFAULT_CLOCK_CONFIG.size,
     use24Hour: params.has('h24') ? params.get('h24') !== '0' : DEFAULT_CLOCK_CONFIG.use24Hour,
     showSeconds: params.has('sec') ? params.get('sec') === '1' : DEFAULT_CLOCK_CONFIG.showSeconds,
     showDate: params.has('dt') ? params.get('dt') !== '0' : DEFAULT_CLOCK_CONFIG.showDate,
     osFrame: 'none',
   };
 
-  const uiHidden =
-    params.get('lively') === '1' || params.get('zen') === '1' || params.get('clean') === '1';
+  // UI is hidden by default for Lively Wallpaper; only show on load if ?ui=1, ?edit=1, or ?lively=0
+  const explicitShowUi =
+    params.get('ui') === '1' || params.get('edit') === '1' || params.get('lively') === '0';
+  const uiHidden = !explicitShowUi;
 
   const hideRaw = Number(params.get('hide') || '0');
   const autoHideSeconds = [0, 3, 5, 10].includes(hideRaw) ? hideRaw : 0;
+
+  const uiUnlockMode = parseUiUnlockParam(params.get('unlock'));
 
   const hasParams =
     params.has('design') ||
@@ -1044,6 +1892,10 @@ export function parseStudioUrlQuery(search: string): ParsedStudioQuery {
     params.has('lively') ||
     params.has('zen') ||
     params.has('clean') ||
+    params.has('ui') ||
+    params.has('edit') ||
+    params.has('unlock') ||
+    params.has('clk') ||
     params.has('c');
 
   return {
@@ -1054,5 +1906,6 @@ export function parseStudioUrlQuery(search: string): ParsedStudioQuery {
     clock,
     uiHidden,
     autoHideSeconds,
+    uiUnlockMode,
   };
 }
