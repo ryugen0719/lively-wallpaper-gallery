@@ -43,6 +43,7 @@ test('URL query serialization and parsing round-trips BeamsConfig, ClockConfig, 
   const clock = {
     position: 'top-right' as const,
     size: 'lg' as const,
+    style: 'analog' as const,
     use24Hour: false,
     showSeconds: true,
     showDate: true,
@@ -61,6 +62,7 @@ test('URL query serialization and parsing round-trips BeamsConfig, ClockConfig, 
   assert.equal(parsed.config.rotation, samplePreset.config.rotation);
   assert.equal(parsed.clock.position, 'top-right');
   assert.equal(parsed.clock.size, 'lg');
+  assert.equal(parsed.clock.style, 'analog');
   assert.equal(parsed.clock.use24Hour, false);
   assert.equal(parsed.clock.showSeconds, true);
 });
@@ -99,15 +101,20 @@ test('buildWallpaperFilename sanitizes slug and appends resolution and format', 
   );
 });
 
-test('formatJapaneseClock formats 24h and 12h modes with Japanese date', () => {
+test('formatJapaneseClock formats 24h and 12h modes with Japanese and ISO dates', () => {
   const sampleDate = new Date(2026, 10, 22, 16, 5, 9); // 2026-11-22 (Sun) 16:05:09
 
   const f24 = formatJapaneseClock(sampleDate, true, false);
+  assert.equal(f24.hours, '16');
+  assert.equal(f24.minutes, '05');
+  assert.equal(f24.seconds, '09');
   assert.equal(f24.timeText, '16:05');
   assert.equal(f24.periodText, '');
   assert.equal(f24.dateText, '2026年11月22日 (日)');
+  assert.equal(f24.isoDateText, '2026.11.22 SUN');
 
   const f12 = formatJapaneseClock(sampleDate, false, true);
+  assert.equal(f12.hours, '04');
   assert.equal(f12.timeText, '04:05:09');
   assert.equal(f12.periodText, 'PM');
 });

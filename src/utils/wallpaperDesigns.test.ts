@@ -23,13 +23,19 @@ test('all 13 React Bits designs exist and have curated presets including light m
   }
 });
 
-test('Lively Wallpaper URL serialization round-trips design, clock size/position, unlock guard, and hide flag', () => {
+test('Lively Wallpaper URL serialization round-trips design, clock style/size/position, unlock guard, and hide flag', () => {
   const scannerPreset = DESIGN_PRESETS.scanner[1];
   const query = serializeStudioUrlQuery({
     designId: 'scanner',
     presetId: scannerPreset.id,
     config: scannerPreset.config,
-    clock: { ...DEFAULT_CLOCK_CONFIG, position: 'bottom-right', size: 'lg', showSeconds: true },
+    clock: {
+      ...DEFAULT_CLOCK_CONFIG,
+      position: 'bottom-right',
+      size: 'lg',
+      style: 'flip',
+      showSeconds: true,
+    },
     lively: true,
     autoHideSeconds: 5,
     uiUnlockMode: 'locked',
@@ -38,6 +44,7 @@ test('Lively Wallpaper URL serialization round-trips design, clock size/position
   assert.ok(query.includes('lively=1'));
   assert.ok(query.includes('design=scanner'));
   assert.ok(query.includes('unlock=locked'));
+  assert.ok(query.includes('cst=flip'));
 
   const parsed = parseStudioUrlQuery(query);
   assert.equal(parsed.hasParams, true);
@@ -48,6 +55,7 @@ test('Lively Wallpaper URL serialization round-trips design, clock size/position
   assert.equal(parsed.uiUnlockMode, 'locked');
   assert.equal(parsed.clock.position, 'bottom-right');
   assert.equal(parsed.clock.size, 'lg');
+  assert.equal(parsed.clock.style, 'flip');
   assert.equal(parsed.clock.showSeconds, true);
 });
 

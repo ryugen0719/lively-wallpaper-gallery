@@ -14,6 +14,7 @@ import {
   type ExportFormat,
   RESOLUTION_OPTIONS,
   type ResolutionOption,
+  isValidClockStyle,
   sanitizeBeamsConfig,
 } from './utils/wallpaperConfig';
 import {
@@ -93,7 +94,13 @@ function loadSavedSession(): SavedSession | null {
           ...parsed.configs?.['soft-aurora'],
         },
       },
-      clock: { ...DEFAULT_CLOCK_CONFIG, ...parsed.clock },
+      clock: {
+        ...DEFAULT_CLOCK_CONFIG,
+        ...parsed.clock,
+        style: isValidClockStyle(parsed.clock?.style)
+          ? parsed.clock.style
+          : DEFAULT_CLOCK_CONFIG.style,
+      },
       autoHideSeconds: [0, 3, 5, 10].includes(Number(parsed.autoHideSeconds))
         ? Number(parsed.autoHideSeconds)
         : 0,

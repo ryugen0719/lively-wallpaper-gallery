@@ -4,6 +4,7 @@
   --font-display: "Outfit", "Noto Sans JP", system-ui, sans-serif;
   --font-sans: "Noto Sans JP", "Outfit", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-clock-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
 }
 
 @layer base {

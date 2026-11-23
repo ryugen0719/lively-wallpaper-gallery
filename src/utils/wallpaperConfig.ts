@@ -28,12 +28,43 @@ export type ClockPosition =
   | 'bottom-left'
   | 'bottom-right';
 export type ClockSize = 'sm' | 'md' | 'lg';
+export type ClockStyle =
+  | 'minimal'
+  | 'editorial'
+  | 'stacked'
+  | 'flip'
+  | 'mono'
+  | 'outline'
+  | 'analog'
+  | 'ring';
 export type OsPreviewFrame = 'none' | 'windows' | 'macos';
 export type ExportFormat = 'png' | 'jpeg';
+
+export interface ClockStyleMeta {
+  id: ClockStyle;
+  label: string;
+  description: string;
+}
+
+export const CLOCK_STYLES: ClockStyleMeta[] = [
+  { id: 'minimal', label: 'ミニマル', description: '軽やかな幾何学サンセリフ' },
+  { id: 'editorial', label: 'セリフ', description: '繊細な高級時計風セリフ' },
+  { id: 'stacked', label: '縦積み', description: '時と分を重ねたポスター風' },
+  { id: 'flip', label: 'フリップ', description: 'パタパタ式スプリットパネル' },
+  { id: 'mono', label: 'テック', description: '等幅デジタル＋秒バー' },
+  { id: 'outline', label: '線画', description: '背景の光が透ける中抜き数字' },
+  { id: 'analog', label: 'アナログ', description: 'スイスミニマル針時計' },
+  { id: 'ring', label: 'リング', description: '秒と分が周回する軌道アーク' },
+];
+
+export function isValidClockStyle(value: unknown): value is ClockStyle {
+  return typeof value === 'string' && CLOCK_STYLES.some((item) => item.id === value);
+}
 
 export interface ClockConfig {
   position: ClockPosition;
   size: ClockSize;
+  style: ClockStyle;
   use24Hour: boolean;
   showSeconds: boolean;
   showDate: boolean;
@@ -83,6 +114,7 @@ export const DEFAULT_BEAMS_CONFIG: BeamsConfig = {
 export const DEFAULT_CLOCK_CONFIG: ClockConfig = {
   position: 'center',
   size: 'md',
+  style: 'minimal',
   use24Hour: true,
   showSeconds: false,
   showDate: true,
@@ -349,6 +381,7 @@ export function serializeConfigToQuery(
   params.set('clk', clock.position);
   if (clock.position !== 'off') {
     params.set('csz', clock.size);
+    params.set('cst', clock.style);
     params.set('h24', clock.use24Hour ? '1' : '0');
     params.set('sec', clock.showSeconds ? '1' : '0');
     params.set('dt', clock.showDate ? '1' : '0');
@@ -424,9 +457,15 @@ export function parseConfigFromQuery(search: string): ParsedQueryState {
     ? (sizeParam as ClockSize)
     : DEFAULT_CLOCK_CONFIG.size;
 
+  const styleParam = params.get('cst');
+  const style: ClockStyle = isValidClockStyle(styleParam)
+    ? styleParam
+    : DEFAULT_CLOCK_CONFIG.style;
+
   const clock: ClockConfig = {
     position,
     size,
+    style,
     use24Hour: params.has('h24') ? params.get('h24') !== '0' : DEFAULT_CLOCK_CONFIG.use24Hour,
     showSeconds: params.has('sec') ? params.get('sec') === '1' : DEFAULT_CLOCK_CONFIG.showSeconds,
     showDate: params.has('dt') ? params.get('dt') !== '0' : DEFAULT_CLOCK_CONFIG.showDate,
@@ -496,12 +535,23 @@ export function buildWallpaperFilename(
 }
 
 const WEEKDAYS_JA = ['日', '月', '火', '水', '木', '金', '土'] as const;
+const WEEKDAYS_EN = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const;
+
+export interface FormattedClockParts {
+  hours: string;
+  minutes: string;
+  seconds: string;
+  timeText: string;
+  periodText: string;
+  dateText: string;
+  isoDateText: string;
+}
 
 export function formatJapaneseClock(
   date: Date,
   use24Hour: boolean,
   showSeconds: boolean
-): { timeText: string; periodText: string; dateText: string } {
+): FormattedClockParts {
   const rawHours = date.getHours();
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
@@ -524,8 +574,19 @@ export function formatJapaneseClock(
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
-  const weekday = WEEKDAYS_JA[date.getDay()];
+  const weekdayIdx = date.getDay();
+  const weekday = WEEKDAYS_JA[weekdayIdx];
+  const weekdayEn = WEEKDAYS_EN[weekdayIdx];
   const dateText = `${year}年${month}月${day}日 (${weekday})`;
+  const isoDateText = `${year}.${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')} ${weekdayEn}`;
 
-  return { timeText, periodText, dateText };
+  return {
+    hours: hoursDisplay,
+    minutes,
+    seconds,
+    timeText,
+    periodText,
+    dateText,
+    isoDateText,
+  };
 }

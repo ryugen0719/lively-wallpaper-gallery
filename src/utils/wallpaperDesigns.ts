@@ -6,6 +6,7 @@ import {
   WALLPAPER_PRESETS,
   clampNumber,
   createRandomConfig as createRandomBeamsConfig,
+  isValidClockStyle,
   isValidHexColor,
   sanitizeBeamsConfig,
 } from './wallpaperConfig';
@@ -1749,6 +1750,7 @@ export function serializeStudioUrlQuery(payload: StudioSharePayload): string {
   params.set('clk', payload.clock.position);
   if (payload.clock.position !== 'off') {
     params.set('csz', payload.clock.size);
+    params.set('cst', payload.clock.style);
     params.set('h24', payload.clock.use24Hour ? '1' : '0');
     params.set('sec', payload.clock.showSeconds ? '1' : '0');
     params.set('dt', payload.clock.showDate ? '1' : '0');
@@ -1862,6 +1864,7 @@ export function parseStudioUrlQuery(search: string): ParsedStudioQuery {
   ];
   const sizeParam = params.get('csz');
   const validSizes: ClockConfig['size'][] = ['sm', 'md', 'lg'];
+  const styleParam = params.get('cst');
   const clock: ClockConfig = {
     position: validPositions.includes(clkParam as ClockConfig['position'])
       ? (clkParam as ClockConfig['position'])
@@ -1869,6 +1872,7 @@ export function parseStudioUrlQuery(search: string): ParsedStudioQuery {
     size: validSizes.includes(sizeParam as ClockConfig['size'])
       ? (sizeParam as ClockConfig['size'])
       : DEFAULT_CLOCK_CONFIG.size,
+    style: isValidClockStyle(styleParam) ? styleParam : DEFAULT_CLOCK_CONFIG.style,
     use24Hour: params.has('h24') ? params.get('h24') !== '0' : DEFAULT_CLOCK_CONFIG.use24Hour,
     showSeconds: params.has('sec') ? params.get('sec') === '1' : DEFAULT_CLOCK_CONFIG.showSeconds,
     showDate: params.has('dt') ? params.get('dt') !== '0' : DEFAULT_CLOCK_CONFIG.showDate,

@@ -19,9 +19,11 @@ import {
   Trash2,
 } from 'lucide-react';
 import {
+  CLOCK_STYLES,
   type ClockConfig,
   type ClockPosition,
   type ClockSize,
+  type ClockStyle,
   type ExportFormat,
   type OsPreviewFrame,
   RESOLUTION_OPTIONS,
@@ -518,7 +520,7 @@ export function StudioDock({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="text-xs font-semibold">デスクトップ時計オーバーレイ</div>
+                      <div className="text-xs font-semibold">デスクトップ時計</div>
                       <div className={`inline-flex gap-1 rounded-lg p-0.5 ${segmentTrack}`}>
                         {(
                           [
@@ -541,6 +543,52 @@ export function StudioDock({
                         ))}
                       </div>
                     </div>
+
+                    {/* 8 Clock Design Variations */}
+                    <div
+                      role="radiogroup"
+                      aria-label="時計デザイン切替"
+                      className="grid grid-cols-4 gap-1.5"
+                    >
+                      {CLOCK_STYLES.map((item) => {
+                        const isSelected = clock.style === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={isSelected}
+                            title={item.description}
+                            onClick={() =>
+                              onChangeClock({
+                                style: item.id,
+                                position: clock.position === 'off' ? 'center' : clock.position,
+                              })
+                            }
+                            className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-1.5 py-2 transition-colors cursor-pointer ${
+                              isSelected
+                                ? lightMode
+                                  ? 'border-neutral-950 bg-neutral-950 text-white'
+                                  : 'border-white bg-white text-neutral-950'
+                                : lightMode
+                                  ? 'border-black/10 bg-black/3 text-neutral-700 hover:border-black/30 hover:text-neutral-950'
+                                  : 'border-white/10 bg-white/4 text-neutral-300 hover:border-white/25 hover:text-white'
+                            }`}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="flex h-5 items-center justify-center leading-none"
+                            >
+                              {renderClockStylePreview(item.id)}
+                            </span>
+                            <span className="text-[10px] font-medium leading-none whitespace-nowrap">
+                              {item.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
                     <div className={`inline-flex flex-wrap gap-1 rounded-lg p-1 ${segmentTrack}`}>
                       {(
                         [
@@ -557,7 +605,7 @@ export function StudioDock({
                           type="button"
                           aria-pressed={clock.position === pos.id}
                           onClick={() => onChangeClock({ position: pos.id })}
-                          className={`rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                          className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                             clock.position === pos.id ? segmentActive : segmentIdle
                           }`}
                         >
@@ -594,31 +642,6 @@ export function StudioDock({
                         />
                         <span>日付を表示</span>
                       </label>
-                    </div>
-
-                    <div className="pt-1 space-y-1.5">
-                      <div className="text-xs font-semibold">OSタスクバー仮プレビュー</div>
-                      <div className={`inline-flex flex-wrap gap-1 rounded-lg p-1 ${segmentTrack}`}>
-                        {(
-                          [
-                            { id: 'none', label: 'なし' },
-                            { id: 'windows', label: 'Windows 11' },
-                            { id: 'macos', label: 'macOS' },
-                          ] as Array<{ id: OsPreviewFrame; label: string }>
-                        ).map((os) => (
-                          <button
-                            key={os.id}
-                            type="button"
-                            aria-pressed={clock.osFrame === os.id}
-                            onClick={() => onChangeClock({ osFrame: os.id })}
-                            className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                              clock.osFrame === os.id ? segmentActive : segmentIdle
-                            }`}
-                          >
-                            {os.label}
-                          </button>
-                        ))}
-                      </div>
                     </div>
                   </div>
 
@@ -669,6 +692,31 @@ export function StudioDock({
                             }`}
                           >
                             {sec === 0 ? 'オフ' : `${sec}秒`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className={`text-xs ${mutedText}`}>OS仮プレビュー</span>
+                      <div className={`inline-flex gap-1 rounded-lg p-1 ${segmentTrack}`}>
+                        {(
+                          [
+                            { id: 'none', label: 'なし' },
+                            { id: 'windows', label: 'Win 11' },
+                            { id: 'macos', label: 'macOS' },
+                          ] as Array<{ id: OsPreviewFrame; label: string }>
+                        ).map((os) => (
+                          <button
+                            key={os.id}
+                            type="button"
+                            aria-pressed={clock.osFrame === os.id}
+                            onClick={() => onChangeClock({ osFrame: os.id })}
+                            className={`rounded-md px-2 py-0.5 text-[11px] font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                              clock.osFrame === os.id ? segmentActive : segmentIdle
+                            }`}
+                          >
+                            {os.label}
                           </button>
                         ))}
                       </div>
@@ -821,4 +869,69 @@ export function StudioDock({
       )}
     </section>
   );
+}
+
+function renderClockStylePreview(style: ClockStyle) {
+  switch (style) {
+    case 'editorial':
+      return (
+        <span
+          className="text-[15px] font-light tracking-[0.04em]"
+          style={{ fontFamily: 'var(--font-clock-serif)' }}
+        >
+          12:34
+        </span>
+      );
+    case 'stacked':
+      return (
+        <span className="flex flex-col items-center font-display text-[9px] font-bold leading-[0.88]">
+          <span>12</span>
+          <span className="opacity-70">34</span>
+        </span>
+      );
+    case 'flip':
+      return (
+        <span className="inline-flex items-center gap-0.5 font-display text-[9px] font-semibold">
+          <span className="rounded-[2px] border border-current/40 px-0.5 py-[1px]">12</span>
+          <span className="rounded-[2px] border border-current/40 px-0.5 py-[1px]">34</span>
+        </span>
+      );
+    case 'mono':
+      return (
+        <span className="rounded-[2px] border border-current/35 px-1 py-[1px] font-mono text-[9px]">
+          12:34
+        </span>
+      );
+    case 'outline':
+      return (
+        <span
+          className="font-display text-[13px] font-bold"
+          style={{
+            color: 'transparent',
+            WebkitTextStroke: '0.85px currentColor',
+          }}
+        >
+          12:34
+        </span>
+      );
+    case 'analog':
+      return (
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.4" />
+          <line x1="10" y1="10" x2="10" y2="5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <line x1="10" y1="10" x2="14" y2="10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      );
+    case 'ring':
+      return (
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" strokeOpacity="0.25" strokeWidth="1.4" />
+          <path d="M10 2 A8 8 0 1 1 3.5 14.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="10" cy="10" r="4.5" stroke="currentColor" strokeOpacity="0.5" strokeWidth="1" />
+        </svg>
+      );
+    case 'minimal':
+    default:
+      return <span className="font-display text-[13px] font-light tracking-tight">12:34</span>;
+  }
 }
