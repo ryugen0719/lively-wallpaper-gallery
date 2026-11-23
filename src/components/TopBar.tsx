@@ -1,17 +1,17 @@
-import { Download } from 'lucide-react';
+import { EyeOff } from 'lucide-react';
 
 export type StudioTab = 'presets' | 'customize' | 'display' | 'export';
 
 interface TopBarProps {
   activeTab: StudioTab;
   onSelectTab: (tab: StudioTab) => void;
-  onQuickSaveAction: () => void;
+  onHideAllUi: () => void;
   lightMode: boolean;
-  zenMode: boolean;
+  uiHidden: boolean;
 }
 
 const NAV_ITEMS: Array<{ id: StudioTab; label: string }> = [
-  { id: 'presets', label: 'プリセット' },
+  { id: 'presets', label: 'デザイン' },
   { id: 'customize', label: '詳細調整' },
   { id: 'display', label: '時計・表示' },
   { id: 'export', label: '書き出し' },
@@ -20,9 +20,9 @@ const NAV_ITEMS: Array<{ id: StudioTab; label: string }> = [
 export function TopBar({
   activeTab,
   onSelectTab,
-  onQuickSaveAction,
+  onHideAllUi,
   lightMode,
-  zenMode,
+  uiHidden,
 }: TopBarProps) {
   const surfaceClass = lightMode
     ? 'bg-[#F5F4F0]/90 border-black/10 text-neutral-900'
@@ -42,8 +42,9 @@ export function TopBar({
 
   return (
     <header
+      aria-hidden={uiHidden}
       className={`fixed top-0 inset-x-0 z-20 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        zenMode ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        uiHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
       }`}
     >
       <div
@@ -52,6 +53,7 @@ export function TopBar({
         {/* Zone 1: Single-line brand wordmark */}
         <a
           href="#top"
+          tabIndex={uiHidden ? -1 : 0}
           onClick={(e) => {
             e.preventDefault();
             onSelectTab('presets');
@@ -62,16 +64,14 @@ export function TopBar({
         </a>
 
         {/* Zone 2: 4 clean single-line text links (desktop/tablet) */}
-        <nav
-          aria-label="スタジオメニュー"
-          className="hidden md:flex items-center gap-6 lg:gap-7"
-        >
+        <nav aria-label="スタジオメニュー" className="hidden md:flex items-center gap-6 lg:gap-7">
           {NAV_ITEMS.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 type="button"
+                tabIndex={uiHidden ? -1 : 0}
                 onClick={() => onSelectTab(item.id)}
                 aria-current={isActive ? 'page' : undefined}
                 className={`relative py-2 text-xs sm:text-[13px] font-medium whitespace-nowrap shrink-0 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 rounded-sm after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0.5 after:h-[1.5px] after:transition-opacity ${
@@ -84,15 +84,17 @@ export function TopBar({
           })}
         </nav>
 
-        {/* Zone 3: Single primary action */}
+        {/* Zone 3: Single primary action — Complete UI Hide for Lively Wallpaper */}
         <div className="shrink-0">
           <button
             type="button"
-            onClick={onQuickSaveAction}
+            tabIndex={uiHidden ? -1 : 0}
+            onClick={onHideAllUi}
+            title="すべてのUIを完全に隠す (H)"
             className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 ${ctaClass}`}
           >
-            <Download className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>壁紙を保存</span>
+            <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>完全非表示</span>
           </button>
         </div>
       </div>

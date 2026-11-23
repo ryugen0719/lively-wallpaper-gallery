@@ -6,6 +6,7 @@ import {
   ChevronUp,
   Copy,
   Download,
+  EyeOff,
   Maximize2,
   Minimize2,
   Pause,
@@ -15,34 +16,50 @@ import {
   Trash2,
 } from 'lucide-react';
 import {
-  type BeamsConfig,
   type ClockConfig,
   type ClockPosition,
   type ExportFormat,
   type OsPreviewFrame,
   RESOLUTION_OPTIONS,
   type ResolutionOption,
-  type WallpaperPreset,
 } from '../utils/wallpaperConfig';
+import {
+  type AllDesignConfigs,
+  DESIGN_LIST,
+  type DesignPresetItem,
+  type WallpaperDesignId,
+  isLightModeForDesign,
+  isPausedForDesign,
+} from '../utils/wallpaperDesigns';
+import { DesignCustomizePanel } from './DesignCustomizePanel';
 import type { StudioTab } from './TopBar';
 
 interface StudioDockProps {
   activeTab: StudioTab;
   onSelectTab: (tab: StudioTab) => void;
-  config: BeamsConfig;
-  onChangeConfig: (patch: Partial<BeamsConfig>) => void;
+  designId: WallpaperDesignId;
+  onSelectDesign: (id: WallpaperDesignId) => void;
+  configs: AllDesignConfigs;
+  onPatchDesignConfig: <K extends WallpaperDesignId>(
+    id: K,
+    patch: Partial<AllDesignConfigs[K]>
+  ) => void;
+  onTogglePause: () => void;
   clock: ClockConfig;
   onChangeClock: (patch: Partial<ClockConfig>) => void;
-  presets: WallpaperPreset[];
+  autoHideSeconds: number;
+  onChangeAutoHideSeconds: (sec: number) => void;
+  presets: DesignPresetItem[];
   activePresetId: string;
-  onSelectPreset: (preset: WallpaperPreset) => void;
+  onSelectPreset: (preset: DesignPresetItem) => void;
   onSaveCustomPreset: (name: string) => void;
   onDeleteCustomPreset: (id: string) => void;
   onRandomize: () => void;
   onReset: () => void;
   dockOpen: boolean;
   onToggleDock: () => void;
-  zenMode: boolean;
+  uiHidden: boolean;
+  onHideAllUi: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   selectedResolution: ResolutionOption;
@@ -55,82 +72,22 @@ interface StudioDockProps {
   exportStatus: string | null;
   exportError: string | null;
   onExportWallpaper: () => void;
-  onCopyShareUrl: () => void;
+  onCopyLivelyUrl: () => void;
   copiedUrl: boolean;
-}
-
-type CustomizeGroup = 'color' | 'geometry' | 'texture';
-
-interface SliderControlProps {
-  id: string;
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  displayValue: string;
-  onChange: (val: number) => void;
-  lightMode: boolean;
-}
-
-function SliderControl({
-  id,
-  label,
-  value,
-  min,
-  max,
-  step,
-  displayValue,
-  onChange,
-  lightMode,
-}: SliderControlProps) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between gap-2 text-xs">
-        <label
-          htmlFor={id}
-          className={`font-medium whitespace-nowrap ${
-            lightMode ? 'text-neutral-700' : 'text-neutral-300'
-          }`}
-        >
-          {label}
-        </label>
-        <span
-          className={`font-mono text-[11px] tabular-nums ${
-            lightMode ? 'text-neutral-500' : 'text-neutral-400'
-          }`}
-        >
-          {displayValue}
-        </span>
-      </div>
-      <input
-        id={id}
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="studio-range"
-        style={
-          {
-            '--range-track': lightMode ? 'rgba(15, 17, 21, 0.16)' : 'rgba(255, 255, 255, 0.18)',
-            '--range-thumb': lightMode ? '#111318' : '#ffffff',
-            '--range-thumb-border': lightMode ? '#f5f4f0' : '#0b0c0e',
-          } as React.CSSProperties
-        }
-      />
-    </div>
-  );
 }
 
 export function StudioDock({
   activeTab,
   onSelectTab,
-  config,
-  onChangeConfig,
+  designId,
+  onSelectDesign,
+  configs,
+  onPatchDesignConfig,
+  onTogglePause,
   clock,
   onChangeClock,
+  autoHideSeconds,
+  onChangeAutoHideSeconds,
   presets,
   activePresetId,
   onSelectPreset,
@@ -140,7 +97,8 @@ export function StudioDock({
   onReset,
   dockOpen,
   onToggleDock,
-  zenMode,
+  uiHidden,
+  onHideAllUi,
   isFullscreen,
   onToggleFullscreen,
   selectedResolution,
@@ -153,14 +111,15 @@ export function StudioDock({
   exportStatus,
   exportError,
   onExportWallpaper,
-  onCopyShareUrl,
+  onCopyLivelyUrl,
   copiedUrl,
 }: StudioDockProps) {
-  const [customizeGroup, setCustomizeGroup] = useState<CustomizeGroup>('color');
   const [customName, setCustomName] = useState('');
   const [showSaveForm, setShowSaveForm] = useState(false);
 
-  const lightMode = config.lightMode;
+  const lightMode = isLightModeForDesign(designId, configs);
+  const paused = isPausedForDesign(designId, configs);
+  const activeDesignMeta = DESIGN_LIST.find((d) => d.id === designId) ?? DESIGN_LIST[0];
   const activePreset = presets.find((p) => p.id === activePresetId);
 
   const panelSurface = lightMode
@@ -175,9 +134,7 @@ export function StudioDock({
     : 'text-neutral-300 hover:bg-white/10 hover:text-white focus-visible:outline-white';
 
   const segmentTrack = lightMode ? 'bg-black/6' : 'bg-white/8';
-  const segmentActive = lightMode
-    ? 'bg-neutral-950 text-white'
-    : 'bg-white text-neutral-950';
+  const segmentActive = lightMode ? 'bg-neutral-950 text-white' : 'bg-white text-neutral-950';
   const segmentIdle = lightMode
     ? 'text-neutral-700 hover:text-neutral-950'
     : 'text-neutral-300 hover:text-white';
@@ -202,14 +159,16 @@ export function StudioDock({
   return (
     <section
       aria-label="壁紙コントロールパネル"
-      className={`fixed bottom-4 sm:bottom-5 left-1/2 z-20 w-[min(920px,94vw)] -translate-x-1/2 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        zenMode ? 'translate-y-[140%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+      aria-hidden={uiHidden}
+      className={`fixed bottom-4 sm:bottom-5 left-1/2 z-20 w-[min(940px,94vw)] -translate-x-1/2 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        uiHidden ? 'translate-y-[145%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
       }`}
     >
       {/* Top dock handle bar */}
-      <div className="mb-2 flex items-center justify-between gap-3 px-1">
+      <div className="mb-2 flex items-center justify-between gap-2.5 px-1">
         <button
           type="button"
+          tabIndex={uiHidden ? -1 : 0}
           onClick={onToggleDock}
           aria-expanded={dockOpen}
           className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${panelSurface}`}
@@ -219,38 +178,35 @@ export function StudioDock({
           ) : (
             <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
           )}
-          <span>{dockOpen ? 'コントロールを隠す' : 'コントロールを表示'}</span>
+          <span>{dockOpen ? 'ドックを畳む' : 'ドックを開く'}</span>
         </button>
 
         {/* High-contrast unboxed metadata summary over matching dock surface */}
         <div
           className={`hidden md:flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium ${panelSurface}`}
         >
+          <span className="font-display tracking-wide">{activeDesignMeta.label}</span>
+          <span aria-hidden="true" className="opacity-45">
+            ·
+          </span>
           <span>{activePreset ? activePreset.name : 'カスタム構成'}</span>
           <span aria-hidden="true" className="opacity-45">
             ·
           </span>
-          <span className="font-mono tabular-nums">{config.rotation}°</span>
-          <span aria-hidden="true" className="opacity-45">
-            ·
-          </span>
-          <span className="font-mono tabular-nums">{config.beamWidth}px</span>
-          <span aria-hidden="true" className="opacity-45">
-            ·
-          </span>
-          <span>{config.lightMode ? 'ライト' : 'ダーク'}</span>
+          <span>{lightMode ? 'ライト' : 'ダーク'}</span>
         </div>
 
         {/* Compact quick actions */}
         <div className={`flex items-center gap-1 rounded-lg border p-1 ${panelSurface}`}>
           <button
             type="button"
-            onClick={() => onChangeConfig({ paused: !config.paused })}
-            aria-label={config.paused ? 'アニメーションを再生' : 'アニメーションを一時停止'}
-            title={config.paused ? '再生 (Space)' : '一時停止 (Space)'}
+            tabIndex={uiHidden ? -1 : 0}
+            onClick={onTogglePause}
+            aria-label={paused ? 'アニメーションを再生' : 'アニメーションを一時停止'}
+            title={paused ? '再生 (Space)' : '一時停止 (Space)'}
             className={`inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${iconBtnClass}`}
           >
-            {config.paused ? (
+            {paused ? (
               <Play className="h-3.5 w-3.5" aria-hidden="true" />
             ) : (
               <Pause className="h-3.5 w-3.5" aria-hidden="true" />
@@ -258,6 +214,7 @@ export function StudioDock({
           </button>
           <button
             type="button"
+            tabIndex={uiHidden ? -1 : 0}
             onClick={onRandomize}
             aria-label="壁紙デザインをランダム生成"
             title="ランダム生成 (R)"
@@ -267,6 +224,7 @@ export function StudioDock({
           </button>
           <button
             type="button"
+            tabIndex={uiHidden ? -1 : 0}
             onClick={onToggleFullscreen}
             aria-label={isFullscreen ? 'フルスクリーンを終了' : 'フルスクリーン表示'}
             title="フルスクリーン (F)"
@@ -277,6 +235,16 @@ export function StudioDock({
             ) : (
               <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
             )}
+          </button>
+          <button
+            type="button"
+            tabIndex={uiHidden ? -1 : 0}
+            onClick={onHideAllUi}
+            aria-label="すべてのUIを完全に隠す"
+            title="完全非表示 (H)"
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${iconBtnClass}`}
+          >
+            <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -292,7 +260,7 @@ export function StudioDock({
           >
             {(
               [
-                { id: 'presets', label: 'プリセット' },
+                { id: 'presets', label: 'デザイン' },
                 { id: 'customize', label: '詳細調整' },
                 { id: 'display', label: '時計・表示' },
                 { id: 'export', label: '書き出し' },
@@ -302,6 +270,7 @@ export function StudioDock({
                 key={tab.id}
                 type="button"
                 role="tab"
+                tabIndex={uiHidden ? -1 : 0}
                 aria-selected={activeTab === tab.id}
                 onClick={() => onSelectTab(tab.id)}
                 className={`rounded-md py-1.5 text-[11px] font-medium whitespace-nowrap transition-colors cursor-pointer ${
@@ -316,8 +285,55 @@ export function StudioDock({
           {/* Tab Content */}
           <div className="p-3.5 sm:p-5">
             {activeTab === 'presets' && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 max-h-[236px] sm:max-h-[210px] overflow-y-auto pr-0.5">
+              <div className="space-y-3.5">
+                {/* 7 React Bits Design Engine Selector */}
+                <div
+                  role="tablist"
+                  aria-label="壁紙デザイン切替"
+                  className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 md:grid-cols-7"
+                >
+                  {DESIGN_LIST.map((design) => {
+                    const selected = design.id === designId;
+                    return (
+                      <button
+                        key={design.id}
+                        type="button"
+                        role="tab"
+                        tabIndex={uiHidden ? -1 : 0}
+                        aria-selected={selected}
+                        onClick={() => onSelectDesign(design.id)}
+                        className={`flex min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left transition-colors cursor-pointer ${
+                          selected
+                            ? lightMode
+                              ? 'border-neutral-950 bg-neutral-950 text-white'
+                              : 'border-white bg-white text-neutral-950'
+                            : lightMode
+                              ? 'border-black/10 bg-black/3 text-neutral-700 hover:border-black/30 hover:text-neutral-950'
+                              : 'border-white/10 bg-white/4 text-neutral-300 hover:border-white/25 hover:text-white'
+                        }`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="h-3 w-3 shrink-0 rounded-sm border border-black/15"
+                          style={{
+                            background: `linear-gradient(135deg, ${design.accentSwatch[0]} 25%, ${design.accentSwatch[1]} 100%)`,
+                          }}
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-display text-[11px] font-semibold leading-tight">
+                            {design.label}
+                          </span>
+                          <span className="block truncate text-[10px] leading-tight opacity-70">
+                            {design.jaLabel}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Curated + Custom Presets for Selected Design */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 max-h-[196px] overflow-y-auto pr-0.5">
                   {presets.map((preset) => {
                     const isSelected = preset.id === activePresetId;
                     return (
@@ -407,19 +423,19 @@ export function StudioDock({
                       </button>
                     </form>
                   ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setShowSaveForm(true)}
                         className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${secondaryBtn}`}
                       >
                         <BookmarkPlus className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span>現在の設定をマイプリセットに保存</span>
+                        <span>マイプリセット保存</span>
                       </button>
                       <button
                         type="button"
                         onClick={onReset}
-                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${mutedText} hover:underline`}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${mutedText} hover:underline`}
                       >
                         <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                         <span>初期化</span>
@@ -428,322 +444,26 @@ export function StudioDock({
                   )}
 
                   <span className={`text-[11px] ${mutedText}`}>
-                    ショートカット: H 表示切替 · Space 一時停止 · F 全画面
+                    H 完全非表示 · ダブルクリック切替 · Space 一時停止
                   </span>
                 </div>
               </div>
             )}
 
             {activeTab === 'customize' && (
-              <div className="space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div
-                    role="tablist"
-                    aria-label="調整カテゴリ"
-                    className={`inline-flex items-center gap-1 rounded-lg p-1 ${segmentTrack}`}
-                  >
-                    {(
-                      [
-                        { id: 'color', label: '色と光' },
-                        { id: 'geometry', label: '形状と動き' },
-                        { id: 'texture', label: '質感と反応' },
-                      ] as const
-                    ).map((grp) => (
-                      <button
-                        key={grp.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={customizeGroup === grp.id}
-                        onClick={() => setCustomizeGroup(grp.id)}
-                        className={`rounded-md px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                          customizeGroup === grp.id ? segmentActive : segmentIdle
-                        }`}
-                      >
-                        {grp.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={onReset}
-                    className={`inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer ${mutedText} hover:underline`}
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span>初期値に戻す</span>
-                  </button>
-                </div>
-
-                {customizeGroup === 'color' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <label htmlFor="beam-color-input" className="text-xs font-medium">
-                        光線カラー
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          id="beam-color-input"
-                          type="color"
-                          value={config.color}
-                          onChange={(e) => onChangeConfig({ color: e.target.value })}
-                          className="h-7 w-9 cursor-pointer rounded border border-white/20 bg-transparent p-0.5"
-                        />
-                        <span className={`font-mono text-xs uppercase tabular-nums ${mutedText}`}>
-                          {config.color}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-3">
-                      <label htmlFor="bg-color-input" className="text-xs font-medium">
-                        背景カラー
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          id="bg-color-input"
-                          type="color"
-                          value={config.backgroundColor}
-                          onChange={(e) => onChangeConfig({ backgroundColor: e.target.value })}
-                          className="h-7 w-9 cursor-pointer rounded border border-white/20 bg-transparent p-0.5"
-                        />
-                        <span className={`font-mono text-xs uppercase tabular-nums ${mutedText}`}>
-                          {config.backgroundColor}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs font-medium">ベース表現</span>
-                      <div className={`inline-flex rounded-lg p-0.5 ${segmentTrack}`}>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            onChangeConfig({
-                              lightMode: false,
-                              backgroundColor: config.lightMode ? '#050507' : config.backgroundColor,
-                              color: config.lightMode ? '#ffffff' : config.color,
-                            })
-                          }
-                          aria-pressed={!config.lightMode}
-                          className={`rounded-md px-2.5 py-1 text-[11px] font-medium whitespace-nowrap cursor-pointer ${
-                            !config.lightMode ? segmentActive : segmentIdle
-                          }`}
-                        >
-                          ダーク発光
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            onChangeConfig({
-                              lightMode: true,
-                              backgroundColor: !config.lightMode
-                                ? '#f3f1ec'
-                                : config.backgroundColor,
-                              color: !config.lightMode ? '#2c303a' : config.color,
-                            })
-                          }
-                          aria-pressed={config.lightMode}
-                          className={`rounded-md px-2.5 py-1 text-[11px] font-medium whitespace-nowrap cursor-pointer ${
-                            config.lightMode ? segmentActive : segmentIdle
-                          }`}
-                        >
-                          ライト墨調
-                        </button>
-                      </div>
-                    </div>
-
-                    <SliderControl
-                      id="slider-brightness"
-                      label="明るさ"
-                      value={config.brightness}
-                      min={0.4}
-                      max={3.0}
-                      step={0.05}
-                      displayValue={config.brightness.toFixed(2)}
-                      onChange={(brightness) => onChangeConfig({ brightness })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-glow"
-                      label="グロー強度"
-                      value={config.glow}
-                      min={0}
-                      max={1.8}
-                      step={0.05}
-                      displayValue={config.glow.toFixed(2)}
-                      onChange={(glow) => onChangeConfig({ glow })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-fill-light"
-                      label="補助光"
-                      value={config.fillLight}
-                      min={0}
-                      max={1.5}
-                      step={0.05}
-                      displayValue={config.fillLight.toFixed(2)}
-                      onChange={(fillLight) => onChangeConfig({ fillLight })}
-                      lightMode={lightMode}
-                    />
-                  </div>
-                )}
-
-                {customizeGroup === 'geometry' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
-                    <SliderControl
-                      id="slider-beam-width"
-                      label="ビーム幅"
-                      value={config.beamWidth}
-                      min={30}
-                      max={320}
-                      step={2}
-                      displayValue={`${config.beamWidth}px`}
-                      onChange={(beamWidth) => onChangeConfig({ beamWidth })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-rotation"
-                      label="角度"
-                      value={config.rotation}
-                      min={-180}
-                      max={180}
-                      step={1}
-                      displayValue={`${config.rotation}°`}
-                      onChange={(rotation) => onChangeConfig({ rotation })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-wave-length"
-                      label="波長"
-                      value={config.waveLength}
-                      min={60}
-                      max={500}
-                      step={5}
-                      displayValue={`${config.waveLength}px`}
-                      onChange={(waveLength) => onChangeConfig({ waveLength })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-depth"
-                      label="立体感"
-                      value={config.depth}
-                      min={0}
-                      max={2.5}
-                      step={0.05}
-                      displayValue={config.depth.toFixed(2)}
-                      onChange={(depth) => onChangeConfig({ depth })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-twist"
-                      label="ねじれ"
-                      value={config.twist}
-                      min={0}
-                      max={2.0}
-                      step={0.05}
-                      displayValue={config.twist.toFixed(2)}
-                      onChange={(twist) => onChangeConfig({ twist })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-speed"
-                      label="アニメーション速度"
-                      value={config.speed}
-                      min={0}
-                      max={3.0}
-                      step={0.05}
-                      displayValue={`${config.speed.toFixed(2)}x`}
-                      onChange={(speed) => onChangeConfig({ speed })}
-                      lightMode={lightMode}
-                    />
-                  </div>
-                )}
-
-                {customizeGroup === 'texture' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
-                    <SliderControl
-                      id="slider-sharpness"
-                      label="シャープネス"
-                      value={config.sharpness}
-                      min={0}
-                      max={1}
-                      step={0.02}
-                      displayValue={config.sharpness.toFixed(2)}
-                      onChange={(sharpness) => onChangeConfig({ sharpness })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-grain"
-                      label="フィルム粒子"
-                      value={config.grain}
-                      min={0}
-                      max={1}
-                      step={0.02}
-                      displayValue={config.grain.toFixed(2)}
-                      onChange={(grain) => onChangeConfig({ grain })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-fade"
-                      label="周辺フェード"
-                      value={config.fade}
-                      min={0}
-                      max={0.6}
-                      step={0.02}
-                      displayValue={config.fade.toFixed(2)}
-                      onChange={(fade) => onChangeConfig({ fade })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-variation"
-                      label="パターンシード"
-                      value={config.variation}
-                      min={0}
-                      max={100}
-                      step={1}
-                      displayValue={`#${config.variation}`}
-                      onChange={(variation) => onChangeConfig({ variation })}
-                      lightMode={lightMode}
-                    />
-                    <SliderControl
-                      id="slider-mouse-strength"
-                      label="カーソル反応強度"
-                      value={config.mouseStrength}
-                      min={0}
-                      max={2}
-                      step={0.05}
-                      displayValue={config.mouseStrength.toFixed(2)}
-                      onChange={(mouseStrength) => onChangeConfig({ mouseStrength })}
-                      lightMode={lightMode}
-                    />
-                    <div className="flex items-center justify-between gap-2 pt-1">
-                      <label htmlFor="toggle-mouse-interaction" className="text-xs font-medium">
-                        カーソル追従
-                      </label>
-                      <button
-                        id="toggle-mouse-interaction"
-                        type="button"
-                        role="switch"
-                        aria-checked={config.mouseInteraction}
-                        onClick={() =>
-                          onChangeConfig({ mouseInteraction: !config.mouseInteraction })
-                        }
-                        className={`rounded-md px-3 py-1 text-xs font-medium whitespace-nowrap cursor-pointer ${
-                          config.mouseInteraction ? segmentActive : secondaryBtn
-                        }`}
-                      >
-                        {config.mouseInteraction ? 'オン' : 'オフ'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <DesignCustomizePanel
+                designId={designId}
+                configs={configs}
+                onPatchDesignConfig={onPatchDesignConfig}
+                onReset={onReset}
+                lightMode={lightMode}
+              />
             )}
 
             {activeTab === 'display' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2.5">
+                  <div className="space-y-3">
                     <div className="text-xs font-semibold">デスクトップ時計オーバーレイ</div>
                     <div className={`inline-flex flex-wrap gap-1 rounded-lg p-1 ${segmentTrack}`}>
                       {(
@@ -768,7 +488,7 @@ export function StudioDock({
                       ))}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 pt-1 text-xs">
+                    <div className="flex flex-wrap items-center gap-4 text-xs">
                       <label className="inline-flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
@@ -797,34 +517,79 @@ export function StudioDock({
                         <span>日付を表示</span>
                       </label>
                     </div>
+
+                    <div className="pt-1 space-y-1.5">
+                      <div className="text-xs font-semibold">OSタスクバー仮プレビュー</div>
+                      <div className={`inline-flex flex-wrap gap-1 rounded-lg p-1 ${segmentTrack}`}>
+                        {(
+                          [
+                            { id: 'none', label: 'なし' },
+                            { id: 'windows', label: 'Windows 11' },
+                            { id: 'macos', label: 'macOS' },
+                          ] as Array<{ id: OsPreviewFrame; label: string }>
+                        ).map((os) => (
+                          <button
+                            key={os.id}
+                            type="button"
+                            aria-pressed={clock.osFrame === os.id}
+                            onClick={() => onChangeClock({ osFrame: os.id })}
+                            className={`rounded-md px-2.5 py-1 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                              clock.osFrame === os.id ? segmentActive : segmentIdle
+                            }`}
+                          >
+                            {os.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-2.5">
-                    <div className="text-xs font-semibold">OSデスクトップ環境プレビュー</div>
-                    <div className={`inline-flex flex-wrap gap-1 rounded-lg p-1 ${segmentTrack}`}>
-                      {(
-                        [
-                          { id: 'none', label: 'なし' },
-                          { id: 'windows', label: 'Windows 11' },
-                          { id: 'macos', label: 'macOS' },
-                        ] as Array<{ id: OsPreviewFrame; label: string }>
-                      ).map((os) => (
-                        <button
-                          key={os.id}
-                          type="button"
-                          aria-pressed={clock.osFrame === os.id}
-                          onClick={() => onChangeClock({ osFrame: os.id })}
-                          className={`rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                            clock.osFrame === os.id ? segmentActive : segmentIdle
-                          }`}
-                        >
-                          {os.label}
-                        </button>
-                      ))}
+                  {/* Lively Wallpaper Complete-Hide Panel */}
+                  <div className="space-y-3">
+                    <div className="text-xs font-semibold">Lively Wallpaper 完全非表示設定</div>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className={`text-xs ${mutedText}`}>無操作で自動非表示</span>
+                      <div className={`inline-flex gap-1 rounded-lg p-1 ${segmentTrack}`}>
+                        {[0, 3, 5, 10].map((sec) => (
+                          <button
+                            key={sec}
+                            type="button"
+                            aria-pressed={autoHideSeconds === sec}
+                            onClick={() => onChangeAutoHideSeconds(sec)}
+                            className={`rounded-md px-2.5 py-1 text-xs font-medium tabular-nums whitespace-nowrap cursor-pointer ${
+                              autoHideSeconds === sec ? segmentActive : segmentIdle
+                            }`}
+                          >
+                            {sec === 0 ? 'オフ' : `${sec}秒`}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <p className={`text-[11px] leading-relaxed ${mutedText}`}>
-                      タスクバーやDockを仮配置して、実際のPCデスクトップでの視認性を確認できます。
+                      完全非表示にすると画面上のボタン類がすべて消えます。再表示は画面ダブルクリック、H キー、または右下隅へのカーソル移動で行えます。
                     </p>
+                    <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={onHideAllUi}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold whitespace-nowrap cursor-pointer ${primaryBtn}`}
+                      >
+                        <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span>今すぐ完全非表示</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={onCopyLivelyUrl}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium whitespace-nowrap cursor-pointer ${secondaryBtn}`}
+                      >
+                        {copiedUrl ? (
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                        )}
+                        <span>{copiedUrl ? 'Lively用URLをコピー済' : 'Lively用URLをコピー'}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -897,7 +662,7 @@ export function StudioDock({
                   <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       type="button"
-                      onClick={onCopyShareUrl}
+                      onClick={onCopyLivelyUrl}
                       className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${secondaryBtn}`}
                     >
                       {copiedUrl ? (
@@ -905,7 +670,9 @@ export function StudioDock({
                       ) : (
                         <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                       )}
-                      <span>{copiedUrl ? 'URLをコピーしました' : 'ライブ壁紙URLをコピー'}</span>
+                      <span>
+                        {copiedUrl ? 'Lively用URLをコピーしました' : 'Lively Wallpaper用URLをコピー'}
+                      </span>
                     </button>
 
                     <button
